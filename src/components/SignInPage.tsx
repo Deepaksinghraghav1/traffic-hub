@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Zap, Mail, Lock, ArrowRight, Github } from 'lucide-react';
+import { Zap, Mail, Lock, ArrowRight, Github, Eye, EyeOff } from 'lucide-react';
 import { ThemeToggle, ThemeMode } from './ThemeToggle';
 import { authService } from '../services/auth';
 
@@ -14,6 +14,7 @@ interface SignInPageProps {
 export function SignInPage({ onSignIn, onSignUpClick, onBack, theme, setTheme }: SignInPageProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -107,13 +108,20 @@ export function SignInPage({ onSignIn, onSignUpClick, onBack, theme, setTheme }:
                             <div className="relative">
                                 <Lock className="absolute left-0 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
                                 <input 
-                                    type="password" 
+                                    type={showPassword ? "text" : "password"} 
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
-                                    className="w-full bg-transparent border-b border-zinc-200 dark:border-white/10 py-3 pl-8 pr-4 outline-none focus:border-blue-600 transition-all text-sm font-medium"
+                                    className="w-full bg-transparent border-b border-zinc-200 dark:border-white/10 py-3 pl-8 pr-10 outline-none focus:border-blue-600 transition-all text-sm font-medium"
                                     required
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-0 top-1/2 -translate-y-1/2 text-zinc-450 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                                </button>
                             </div>
                         </div>
 
