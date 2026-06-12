@@ -14,7 +14,8 @@ import {
     ChevronLeft,
     Bell,
     Search,
-    ShieldCheck
+    ShieldCheck,
+    Sparkles
 } from 'lucide-react';
 import { LandingPage } from './components/LandingPage';
 import { HowItWorksPage } from './components/HowItWorksPage';
@@ -79,6 +80,35 @@ export default function App() {
     const [verifyingCampaign, setVerifyingCampaign] = useState<any | null>(null);
     const [countdown, setCountdown] = useState(15);
     const [isTimerFinished, setIsTimerFinished] = useState(false);
+
+    // Notification States
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [notifications, setNotifications] = useState([
+        {
+            id: 1,
+            title: 'Welcome to TrafficHub!',
+            message: 'Start earning points by visiting other user campaigns.',
+            time: 'Just now',
+            read: false,
+            type: 'info'
+        },
+        {
+            id: 2,
+            title: 'Earn Bonus Points',
+            message: 'Upgrade your plan to Pro or Business to get up to 10x points per visit!',
+            time: '2 hours ago',
+            read: false,
+            type: 'sparkle'
+        },
+        {
+            id: 3,
+            title: 'Need Traffic?',
+            message: 'Create a campaign to drive real visitors to your website or blog.',
+            time: '1 day ago',
+            read: true,
+            type: 'campaign'
+        }
+    ]);
 
     const [theme, setTheme] = useState<'light' | 'dark' | 'system' | 'auto'>(() => {
         if (typeof window !== 'undefined') {
@@ -404,6 +434,22 @@ export default function App() {
     // Global Action Handlers
     const goToLanding = () => setCurrentPage('landing');
 
+    const markNotificationAsRead = (id: number) => {
+        setNotifications(prev =>
+            prev.map(n => n.id === id ? { ...n, read: true } : n)
+        );
+    };
+
+    const markAllNotificationsAsRead = () => {
+        setNotifications(prev =>
+            prev.map(n => ({ ...n, read: true }))
+        );
+    };
+
+    const clearAllNotifications = () => {
+        setNotifications([]);
+    };
+
     // Page Routing
     const renderPage = () => {
         switch (currentPage) {
@@ -611,10 +657,105 @@ export default function App() {
                                 </div>
                             )}
 
-                            <button className="relative p-2 md:p-3 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl md:rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">
-                                <Bell className="size-4 md:size-5 text-zinc-400" />
-                                <span className="absolute top-2.5 right-2.5 md:top-3 md:right-3 size-1.5 md:size-2 bg-red-500 rounded-full border-2 border-white dark:border-zinc-900"></span>
-                            </button>
+                            {/* Notifications Dropdown */}
+                            <div className="relative">
+                                <button 
+                                    onClick={() => setShowNotifications(!showNotifications)}
+                                    className="relative p-2 md:p-3 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl md:rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+                                >
+                                    <Bell className="size-4 md:size-5 text-zinc-400" />
+                                    {notifications.some(n => !n.read) && (
+                                        <span className="absolute top-2.5 right-2.5 md:top-3 md:right-3 size-1.5 md:size-2 bg-red-500 rounded-full border-2 border-white dark:border-zinc-900"></span>
+                                    )}
+                                </button>
+                                
+                                {showNotifications && (
+                                    <>
+                                        {/* Click outside overlay */}
+                                        <div 
+                                            className="fixed inset-0 z-40" 
+                                            onClick={() => setShowNotifications(false)}
+                                        />
+                                        
+                                        {/* Dropdown panel */}
+                                        <div className="absolute right-0 mt-2 w-72 sm:w-96 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <div className="p-4 border-b border-zinc-150 dark:border-zinc-800 flex items-center justify-between">
+                                                <h3 className="font-extrabold text-sm tracking-tight">Notifications</h3>
+                                                <div className="flex gap-2">
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            markAllNotificationsAsRead();
+                                                        }}
+                                                        className="text-[10px] font-bold text-blue-600 hover:text-blue-500 hover:underline uppercase tracking-wider cursor-pointer"
+                                                    >
+                                                        Mark all as read
+                                                    </button>
+                                                    <span className="text-zinc-300 dark:text-zinc-700">|</span>
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            clearAllNotifications();
+                                                        }}
+                                                        className="text-[10px] font-bold text-red-550 hover:text-red-400 hover:underline uppercase tracking-wider cursor-pointer"
+                                                    >
+                                                        Clear
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className="max-h-[320px] overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-800">
+                                                {notifications.length === 0 ? (
+                                                    <div className="p-8 text-center text-zinc-400 dark:text-zinc-500">
+                                                        <Bell className="size-8 text-zinc-300 dark:text-zinc-700 mx-auto mb-2" />
+                                                        <p className="text-xs font-bold uppercase tracking-wider">No notifications yet</p>
+                                                    </div>
+                                                ) : (
+                                                    notifications.map((notification) => (
+                                                        <div 
+                                                            key={notification.id}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                markNotificationAsRead(notification.id);
+                                                            }}
+                                                            className={`p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors cursor-pointer relative ${
+                                                                !notification.read ? 'bg-blue-500/5 dark:bg-blue-500/5' : ''
+                                                            }`}
+                                                        >
+                                                            <div className="flex items-start gap-3">
+                                                                <div className={`size-8 rounded-xl flex items-center justify-center flex-shrink-0 border ${
+                                                                    notification.type === 'sparkle' 
+                                                                    ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                                                                    : notification.type === 'campaign'
+                                                                    ? 'bg-purple-500/10 text-purple-500 border-purple-500/20'
+                                                                    : 'bg-blue-500/10 text-blue-500 border-blue-500/20'
+                                                                }`}>
+                                                                    {notification.type === 'sparkle' ? (
+                                                                        <Sparkles className="size-4" />
+                                                                    ) : notification.type === 'campaign' ? (
+                                                                        <Link2 className="size-4" />
+                                                                    ) : (
+                                                                        <Bell className="size-4" />
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <div className="flex justify-between items-baseline gap-2">
+                                                                        <h4 className="font-extrabold text-xs text-zinc-900 dark:text-white truncate">{notification.title}</h4>
+                                                                        <span className="text-[9px] font-bold text-zinc-400 whitespace-nowrap">{notification.time}</span>
+                                                                    </div>
+                                                                    <p className="text-[11px] text-zinc-555 dark:text-zinc-400 font-medium leading-normal mt-0.5">{notification.message}</p>
+                                                                </div>
+                                                                {!notification.read && (
+                                                                    <div className="size-1.5 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
 
                             {/* Points Balance */}
                             <div className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl md:rounded-2xl p-1 md:p-1.5 pl-3 md:pl-4 flex items-center gap-2 md:gap-4 group">

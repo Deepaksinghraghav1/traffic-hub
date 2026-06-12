@@ -11,6 +11,7 @@ import {
     AlertCircle
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { databaseService } from '../services/database';
 
 interface CampaignsViewProps {
@@ -199,7 +200,7 @@ export function CampaignsView({ userId, userEmail, userPoints, onPointsUpdate, u
             )}
 
             {/* Create Campaign Modal */}
-            {isModalOpen && (
+            {isModalOpen && createPortal(
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
                     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] w-full max-w-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
                         <div className="p-8 sm:p-10">
@@ -271,7 +272,8 @@ export function CampaignsView({ userId, userEmail, userPoints, onPointsUpdate, u
                             </form>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
