@@ -37,9 +37,10 @@ interface DashboardViewProps {
         topCampaigns: { title: string; percentage: number; clicks: number }[];
         timings: { morning: number; afternoon: number; evening: number; night: number };
     };
+    dataLoading?: boolean;
 }
 
-export function DashboardView({ userPoints, referralCode, stats, recentActivity = [], onEarnClick, userPlan, onUpgradeClick, isAdmin = false, analytics }: DashboardViewProps) {
+export function DashboardView({ userPoints, referralCode, stats, recentActivity = [], onEarnClick, userPlan, onUpgradeClick, isAdmin = false, analytics, dataLoading = false }: DashboardViewProps) {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
@@ -66,44 +67,59 @@ export function DashboardView({ userPoints, referralCode, stats, recentActivity 
     return (
         <div className="space-y-8 animate-in fade-in duration-700 pb-12">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                <div className="group bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-3xl p-6 hover:border-blue-500/50 transition-all shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="size-12 bg-blue-500/10 rounded-xl flex items-center justify-center">
-                            <MousePointerClick className="size-6 text-blue-500" />
+            {dataLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-3xl p-6 shadow-sm animate-pulse space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div className="size-12 bg-zinc-200 dark:bg-zinc-800/50 rounded-xl"></div>
+                                <div className="w-12 h-6 bg-zinc-200 dark:bg-zinc-800/50 rounded-full"></div>
+                            </div>
+                            <div className="h-8 w-24 bg-zinc-200 dark:bg-zinc-800/55 rounded-lg"></div>
+                            <div className="h-3.5 w-40 bg-zinc-150 dark:bg-zinc-800/40 rounded-md"></div>
                         </div>
-                        <span className="text-emerald-500 text-xs font-bold bg-emerald-500/10 px-2 py-1 rounded-full flex items-center gap-1">
-                            <TrendingUp className="size-3" /> Live
-                        </span>
-                    </div>
-                    <div className="text-3xl font-black mb-1">{safeStats.totalClicks}</div>
-                    <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Total Clicks Received</div>
+                    ))}
                 </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <div className="group bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-3xl p-6 hover:border-blue-500/50 transition-all shadow-sm">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="size-12 bg-blue-500/10 rounded-xl flex items-center justify-center">
+                                <MousePointerClick className="size-6 text-blue-500" />
+                            </div>
+                            <span className="text-emerald-500 text-xs font-bold bg-emerald-500/10 px-2 py-1 rounded-full flex items-center gap-1">
+                                <TrendingUp className="size-3" /> Live
+                            </span>
+                        </div>
+                        <div className="text-3xl font-black mb-1">{safeStats.totalClicks}</div>
+                        <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Total Clicks Received</div>
+                    </div>
 
-                <div className="group bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-3xl p-6 hover:border-amber-500/50 transition-all shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="size-12 bg-amber-500/10 rounded-xl flex items-center justify-center">
-                            <Award className="size-6 text-amber-500" />
+                    <div className="group bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-3xl p-6 hover:border-amber-500/50 transition-all shadow-sm">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="size-12 bg-amber-500/10 rounded-xl flex items-center justify-center">
+                                <Award className="size-6 text-amber-500" />
+                            </div>
+                            <span className="text-amber-500 text-xs font-bold bg-amber-500/10 px-2 py-1 rounded-full">Daily</span>
                         </div>
-                        <span className="text-amber-500 text-xs font-bold bg-amber-500/10 px-2 py-1 rounded-full">Daily</span>
+                        <div className="text-3xl font-black mb-1">+{safeStats.pointsToday}</div>
+                        <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Points Earned Today</div>
                     </div>
-                    <div className="text-3xl font-black mb-1">+{safeStats.pointsToday}</div>
-                    <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Points Earned Today</div>
-                </div>
 
-                <div className="group bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-3xl p-6 hover:border-purple-500/50 transition-all shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="size-12 bg-purple-500/10 rounded-xl flex items-center justify-center">
-                            <Link2 className="size-6 text-purple-500" />
+                    <div className="group bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-3xl p-6 hover:border-purple-500/50 transition-all shadow-sm">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="size-12 bg-purple-500/10 rounded-xl flex items-center justify-center">
+                                <Link2 className="size-6 text-purple-500" />
+                            </div>
+                            <span className="text-purple-500 text-xs font-bold bg-purple-500/10 px-2 py-1 rounded-full uppercase tracking-widest text-[8px]">
+                                {safeStats.runningCampaigns > 0 ? 'Active' : 'Idle'}
+                            </span>
                         </div>
-                        <span className="text-purple-500 text-xs font-bold bg-purple-500/10 px-2 py-1 rounded-full uppercase tracking-widest text-[8px]">
-                            {safeStats.runningCampaigns > 0 ? 'Active' : 'Idle'}
-                        </span>
+                        <div className="text-3xl font-black mb-1">{safeStats.runningCampaigns}</div>
+                        <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Running Campaigns</div>
                     </div>
-                    <div className="text-3xl font-black mb-1">{safeStats.runningCampaigns}</div>
-                    <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Running Campaigns</div>
                 </div>
-            </div>
+            )}
 
             {/* Main Section */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -257,34 +273,48 @@ export function DashboardView({ userPoints, referralCode, stats, recentActivity 
                     <div className="lg:col-span-3 space-y-4">
                         <div className="text-xs font-black text-zinc-400 uppercase tracking-widest">Campaign Performance</div>
                         <div className="bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-6 h-60 flex flex-col justify-between overflow-y-auto">
-                            <div className="space-y-3">
-                                {safeAnalytics.topCampaigns.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center h-44 text-zinc-400 text-[10px] font-black uppercase tracking-wider text-center">
-                                        No traffic received yet
-                                    </div>
-                                ) : (
-                                    safeAnalytics.topCampaigns.map((item, idx) => {
-                                        const colors = [
-                                            { bar: 'bg-blue-600' },
-                                            { bar: 'bg-emerald-600' },
-                                            { bar: 'bg-purple-600' },
-                                            { bar: 'bg-amber-600' }
-                                        ];
-                                        const color = colors[idx % colors.length];
-                                        return (
-                                            <div key={idx} className="space-y-1">
-                                                <div className="flex justify-between text-[11px] font-bold truncate">
-                                                    <span className="truncate pr-2">{item.title}</span>
-                                                    <span className="flex-shrink-0 text-zinc-500 dark:text-zinc-400">{item.percentage}% ({item.clicks})</span>
-                                                </div>
-                                                <div className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-900 rounded-full overflow-hidden">
-                                                    <div className={`h-full ${color.bar} rounded-full`} style={{ width: `${item.percentage}%` }}></div>
-                                                </div>
+                            {dataLoading ? (
+                                <div className="space-y-4 animate-pulse">
+                                    {[1, 2, 3, 4].map(j => (
+                                        <div key={j} className="space-y-2">
+                                            <div className="flex justify-between">
+                                                <div className="h-3 w-20 bg-zinc-200 dark:bg-zinc-800/50 rounded-md"></div>
+                                                <div className="h-3 w-12 bg-zinc-200 dark:bg-zinc-800/50 rounded-md"></div>
                                             </div>
-                                        );
-                                    })
-                                )}
-                            </div>
+                                            <div className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-900/40 rounded-full"></div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {safeAnalytics.topCampaigns.length === 0 ? (
+                                        <div className="flex flex-col items-center justify-center h-44 text-zinc-400 text-[10px] font-black uppercase tracking-wider text-center">
+                                            No traffic received yet
+                                        </div>
+                                    ) : (
+                                        safeAnalytics.topCampaigns.map((item, idx) => {
+                                            const colors = [
+                                                { bar: 'bg-blue-600' },
+                                                { bar: 'bg-emerald-600' },
+                                                { bar: 'bg-purple-600' },
+                                                { bar: 'bg-amber-600' }
+                                            ];
+                                            const color = colors[idx % colors.length];
+                                            return (
+                                                <div key={idx} className="space-y-1">
+                                                    <div className="flex justify-between text-[11px] font-bold truncate">
+                                                        <span className="truncate pr-2">{item.title}</span>
+                                                        <span className="flex-shrink-0 text-zinc-500 dark:text-zinc-400">{item.percentage}% ({item.clicks})</span>
+                                                    </div>
+                                                    <div className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-900 rounded-full overflow-hidden">
+                                                        <div className={`h-full ${color.bar} rounded-full`} style={{ width: `${item.percentage}%` }}></div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -292,7 +322,19 @@ export function DashboardView({ userPoints, referralCode, stats, recentActivity 
                     <div className="lg:col-span-3 space-y-4">
                         <div className="text-xs font-black text-zinc-400 uppercase tracking-widest">Hourly Distribution</div>
                         <div className="bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-6 h-60 flex flex-col justify-between">
-                            {(() => {
+                            {dataLoading ? (
+                                <div className="flex flex-col justify-around h-full py-2 animate-pulse space-y-3">
+                                    {[1, 2, 3, 4].map(j => (
+                                        <div key={j} className="flex justify-between items-center">
+                                            <div className="space-y-1.5">
+                                                <div className="h-3 w-16 bg-zinc-200 dark:bg-zinc-800/50 rounded-md"></div>
+                                                <div className="h-2 w-20 bg-zinc-150 dark:bg-zinc-800/40 rounded-md"></div>
+                                            </div>
+                                            <div className="h-4 w-8 bg-zinc-200 dark:bg-zinc-800/50 rounded-md"></div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (() => {
                                 const { morning, afternoon, evening, night } = safeAnalytics.timings;
                                 const total = morning + afternoon + evening + night;
                                 const getPercent = (val: number) => total > 0 ? Math.round((val / total) * 100) : 0;
@@ -331,7 +373,20 @@ export function DashboardView({ userPoints, referralCode, stats, recentActivity 
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {recentActivity && recentActivity.length > 0 ? (
+                    {dataLoading ? (
+                        [1, 2, 3].map((i) => (
+                            <div key={i} className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-800/20 rounded-2xl border border-transparent animate-pulse">
+                                <div className="flex items-center gap-3">
+                                    <div className="size-10 bg-zinc-200 dark:bg-zinc-800/50 rounded-full"></div>
+                                    <div className="space-y-1.5">
+                                        <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-800/50 rounded-md"></div>
+                                        <div className="h-2.5 w-16 bg-zinc-150 dark:bg-zinc-800/40 rounded-md"></div>
+                                    </div>
+                                </div>
+                                <div className="h-6 w-12 bg-zinc-200 dark:bg-zinc-800/50 rounded-lg"></div>
+                            </div>
+                        ))
+                    ) : recentActivity && recentActivity.length > 0 ? (
                         recentActivity.map((item, i) => (
                             <div key={i} className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 transition-all">
                                 <div className="flex items-center gap-3">

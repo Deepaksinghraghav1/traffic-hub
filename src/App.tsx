@@ -79,6 +79,7 @@ export default function App() {
         topCampaigns: [] as { title: string; percentage: number; clicks: number }[],
         timings: { morning: 0, afternoon: 0, evening: 0, night: 0 }
     });
+    const [dashboardDataLoading, setDashboardDataLoading] = useState(true);
 
     // Verification Timer States
     const [timerModalOpen, setTimerModalOpen] = useState(false);
@@ -175,14 +176,17 @@ export default function App() {
     }, [timerModalOpen, countdown]);
 
     const loadDashboardData = async (userId: string, email: string, plan: string) => {
+        setDashboardDataLoading(true);
         try {
-            // 1. Fetch campaigns for stats
-            const campaigns = await databaseService.getUserCampaigns(userId);
+            // 1. Fetch campaigns, today's clicks, and recent clicks in parallel
+            const [campaigns, todayClicks, recentClicks] = await Promise.all([
+                databaseService.getUserCampaigns(userId),
+                databaseService.getTodayClicksCount(userId),
+                databaseService.getRecentClicks(5)
+            ]);
+
             const totalClicks = campaigns.reduce((acc, c) => acc + (c.clicks || 0), 0);
             const runningCampaigns = campaigns.filter(c => c.status === 'active' && c.pointsRemaining > 0).length;
-
-            // 2. Fetch today's clicks
-            const todayClicks = await databaseService.getTodayClicksCount(userId);
             const multiplier = plan === 'pro' ? 5 : plan === 'business' ? 10 : 1;
             const pointsToday = todayClicks * 10 * multiplier;
 
@@ -192,25 +196,15 @@ export default function App() {
                 runningCampaigns
             });
 
-            // 3. Fetch recent click activities
-            const clicks = await databaseService.getRecentClicks(5);
+            // 2. Fetch recent click activities and resolve names/campaigns in parallel
             const enrichedActivities = await Promise.all(
-                clicks.map(async (click: any) => {
-                    let userName = 'User';
-                    try {
-                        const profile = await databaseService.getProfileById(click.userId);
-                        if (profile) userName = profile.name;
-                    } catch (e) {
-                        console.error('Error fetching activity profile:', e);
-                    }
-
-                    let campaignTitle = 'Website';
-                    try {
-                        const campaign = await databaseService.getCampaignById(click.campaignId);
-                        if (campaign) campaignTitle = campaign.title;
-                    } catch (e) {
-                        console.error('Error fetching activity campaign:', e);
-                    }
+                recentClicks.map(async (click: any) => {
+                    const [profile, campaign] = await Promise.all([
+                        databaseService.getProfileById(click.userId).catch(() => null),
+                        databaseService.getCampaignById(click.campaignId).catch(() => null)
+                    ]);
+                    const userName = profile?.name || 'User';
+                    const campaignTitle = campaign?.title || 'Website';
 
                     const diffMs = new Date().getTime() - new Date(click.timestamp).getTime();
                     const diffMins = Math.floor(diffMs / 60000);
@@ -232,7 +226,7 @@ export default function App() {
             );
             setRecentActivity(enrichedActivities);
 
-            // 4. Load real analytics data if user has campaigns
+            // 3. Load real analytics data if user has campaigns
             let hourlyTraffic = Array(24).fill(0);
             let topCampaignsData: { title: string; percentage: number; clicks: number }[] = [];
             let timingData = { morning: 0, afternoon: 0, evening: 0, night: 0 };
@@ -298,6 +292,8 @@ export default function App() {
             });
         } catch (error) {
             console.error('Error loading dashboard stats:', error);
+        } finally {
+            setDashboardDataLoading(false);
         }
     };
 
@@ -916,6 +912,7 @@ export default function App() {
                                 onUpgradeClick={() => setActiveTab('settings')}
                                 isAdmin={userRole === 'admin'}
                                 analytics={analyticsData}
+                                dataLoading={dashboardDataLoading}
                             />
                         )}
 
