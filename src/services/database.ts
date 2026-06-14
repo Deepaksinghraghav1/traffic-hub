@@ -157,7 +157,7 @@ export const databaseService = {
                 APPWRITE_DATABASE_ID,
                 APPWRITE_CAMPAIGNS_COLLECTION_ID,
                 documentId,
-                { 
+                {
                     pointsRemaining,
                     clicks
                 }
@@ -204,7 +204,7 @@ export const databaseService = {
         try {
             // Get today's date in YYYY-MM-DD
             const today = new Date().toISOString().split('T')[0];
-            
+
             const response = await databases.listDocuments(
                 APPWRITE_DATABASE_ID,
                 APPWRITE_CLICKS_COLLECTION_ID,
@@ -279,6 +279,23 @@ export const databaseService = {
         } catch (error) {
             console.error('Error fetching today clicks count:', error);
             return 0;
+        }
+    },
+
+    async getCampaignClicks(campaignIds: string[], limit: number = 200) {
+        try {
+            const response = await databases.listDocuments(
+                APPWRITE_DATABASE_ID,
+                APPWRITE_CLICKS_COLLECTION_ID,
+                [
+                    Query.equal('campaignId', campaignIds),
+                    Query.limit(limit)
+                ]
+            );
+            return response.documents;
+        } catch (error) {
+            console.error('Error fetching campaign clicks:', error);
+            return [];
         }
     }
 };

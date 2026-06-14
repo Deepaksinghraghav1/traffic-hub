@@ -1,10 +1,10 @@
-import { 
-    Link2, 
-    Plus, 
-    MousePointerClick, 
-    TrendingUp, 
-    Clock, 
-    Pause, 
+import {
+    Link2,
+    Plus,
+    MousePointerClick,
+    TrendingUp,
+    Clock,
+    Pause,
     Play,
     MoreVertical,
     X,
@@ -28,7 +28,7 @@ export function CampaignsView({ userId, userEmail, userPoints, onPointsUpdate, u
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    
+
     // Form State
     const [title, setTitle] = useState('');
     const [url, setUrl] = useState('');
@@ -86,13 +86,13 @@ export function CampaignsView({ userId, userEmail, userPoints, onPointsUpdate, u
             });
 
             // 2. Deduct Points from Database
-            const profile = await databaseService.getProfile(userEmail); 
+            const profile = await databaseService.getProfile(userEmail);
             if (profile) {
                 const newPoints = profile.points - points;
                 await databaseService.updatePoints(profile.$id, newPoints);
                 onPointsUpdate(newPoints);
             }
-            
+
             // 3. Reset and Refresh
             setTitle('');
             setUrl('');
@@ -121,7 +121,7 @@ export function CampaignsView({ userId, userEmail, userPoints, onPointsUpdate, u
                     <h2 className="text-xl font-bold">Your Campaigns</h2>
                     <p className="text-zinc-500 text-sm">Manage and track your active traffic streams</p>
                 </div>
-                <button 
+                <button
                     onClick={() => {
                         const activeCount = campaigns.filter(c => c.status === 'active' || c.status === 'pending').length;
                         if (!isAdmin && userPlan === 'free' && activeCount >= 1) {
@@ -148,7 +148,7 @@ export function CampaignsView({ userId, userEmail, userPoints, onPointsUpdate, u
                     </div>
                     <h3 className="text-xl font-black mb-2">No Campaigns Yet</h3>
                     <p className="text-zinc-500 max-w-xs mx-auto mb-8 font-medium">Create your first traffic campaign to start getting real visitors to your link.</p>
-                    <button 
+                    <button
                         onClick={() => setIsModalOpen(true)}
                         className="text-blue-600 font-black text-xs uppercase tracking-widest hover:underline"
                     >
@@ -184,11 +184,10 @@ export function CampaignsView({ userId, userEmail, userPoints, onPointsUpdate, u
                                         <div className="text-xl font-black text-amber-600 dark:text-amber-400 truncate">{campaign.pointsRemaining} pts</div>
                                     </div>
                                     <div className="col-span-2 sm:col-auto flex items-center justify-between sm:justify-start gap-3 pt-4 sm:pt-0 border-t sm:border-t-0 border-zinc-100 dark:border-zinc-800">
-                                        <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
-                                            campaign.status === 'active' 
-                                            ? 'bg-green-500/10 text-green-600 border-green-500/20' 
-                                            : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 border-zinc-200'
-                                        }`}>
+                                        <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${campaign.status === 'active'
+                                                ? 'bg-green-500/10 text-green-600 border-green-500/20'
+                                                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 border-zinc-200'
+                                            }`}>
                                             {campaign.status}
                                         </span>
                                     </div>
@@ -221,8 +220,8 @@ export function CampaignsView({ userId, userEmail, userPoints, onPointsUpdate, u
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="space-y-2">
                                     <label className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1">Campaign Title</label>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         required
                                         placeholder="e.g. My Website Launch"
                                         value={title}
@@ -233,8 +232,8 @@ export function CampaignsView({ userId, userEmail, userPoints, onPointsUpdate, u
 
                                 <div className="space-y-2">
                                     <label className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1">Target URL</label>
-                                    <input 
-                                        type="url" 
+                                    <input
+                                        type="url"
                                         required
                                         placeholder="https://yourlink.com"
                                         value={url}
@@ -246,8 +245,8 @@ export function CampaignsView({ userId, userEmail, userPoints, onPointsUpdate, u
                                 <div className="space-y-2">
                                     <label className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1">Points to Allocate</label>
                                     <div className="flex items-center gap-4">
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             required
                                             min="100"
                                             step="50"
@@ -262,7 +261,7 @@ export function CampaignsView({ userId, userEmail, userPoints, onPointsUpdate, u
                                     </div>
                                 </div>
 
-                                <button 
+                                <button
                                     type="submit"
                                     disabled={submitting}
                                     className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-400 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-blue-600/20"

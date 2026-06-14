@@ -8,8 +8,7 @@ import {
     Activity,
     Copy,
     CheckCircle2,
-    Crown,
-    Lock
+    Crown
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -33,9 +32,14 @@ interface DashboardViewProps {
     userPlan: 'free' | 'pro' | 'business';
     onUpgradeClick: () => void;
     isAdmin?: boolean;
+    analytics?: {
+        hourlyTraffic: number[];
+        topCampaigns: { title: string; percentage: number; clicks: number }[];
+        timings: { morning: number; afternoon: number; evening: number; night: number };
+    };
 }
 
-export function DashboardView({ userPoints, referralCode, stats, recentActivity = [], onEarnClick, userPlan, onUpgradeClick, isAdmin = false }: DashboardViewProps) {
+export function DashboardView({ userPoints, referralCode, stats, recentActivity = [], onEarnClick, userPlan, onUpgradeClick, isAdmin = false, analytics }: DashboardViewProps) {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
@@ -50,6 +54,13 @@ export function DashboardView({ userPoints, referralCode, stats, recentActivity 
         totalClicks: stats?.totalClicks || 0,
         pointsToday: stats?.pointsToday || 0,
         runningCampaigns: stats?.runningCampaigns || 0
+    };
+
+    // Safe analytics fallback
+    const safeAnalytics = analytics || {
+        hourlyTraffic: Array(24).fill(0),
+        topCampaigns: [] as { title: string; percentage: number; clicks: number }[],
+        timings: { morning: 0, afternoon: 0, evening: 0, night: 0 }
     };
 
     return (
@@ -173,85 +184,138 @@ export function DashboardView({ userPoints, referralCode, stats, recentActivity 
                     <div className="lg:col-span-6 space-y-4">
                         <div className="text-xs font-black text-zinc-400 uppercase tracking-widest">24-Hour Traffic Trend</div>
                         <div className="bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-6 h-60 flex flex-col justify-between">
-                            <div className="flex justify-between items-center text-xs text-zinc-400 font-bold">
-                                <span>120 visits / hr avg</span>
-                                <span className="text-emerald-500">+12% vs yesterday</span>
-                            </div>
-                            {/* Mock SVG Line Chart */}
-                            <div className="w-full flex-1 flex items-end pt-4">
-                                <svg viewBox="0 0 500 150" className="w-full h-32 overflow-visible">
-                                    <defs>
-                                        <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#2563eb" stopOpacity="0.4"/>
-                                            <stop offset="100%" stopColor="#2563eb" stopOpacity="0.0"/>
-                                        </linearGradient>
-                                    </defs>
-                                    {/* Grid Lines */}
-                                    <line x1="0" y1="37.5" x2="500" y2="37.5" stroke="#e4e4e7" strokeDasharray="4 4" className="dark:stroke-zinc-800" />
-                                    <line x1="0" y1="75" x2="500" y2="75" stroke="#e4e4e7" strokeDasharray="4 4" className="dark:stroke-zinc-800" />
-                                    <line x1="0" y1="112.5" x2="500" y2="112.5" stroke="#e4e4e7" strokeDasharray="4 4" className="dark:stroke-zinc-800" />
-                                    {/* Area */}
-                                    <path d="M 0 150 Q 50 80, 100 120 T 200 60 T 300 40 T 400 90 T 500 30 L 500 150 Z" fill="url(#chartGradient)" />
-                                    {/* Line */}
-                                    <path d="M 0 150 Q 50 80, 100 120 T 200 60 T 300 40 T 400 90 T 500 30" fill="none" stroke="#2563eb" strokeWidth="4" strokeLinecap="round" />
-                                    {/* Dots */}
-                                    <circle cx="200" cy="60" r="6" fill="#2563eb" stroke="#ffffff" strokeWidth="2" className="dark:stroke-zinc-950" />
-                                    <circle cx="300" cy="40" r="6" fill="#2563eb" stroke="#ffffff" strokeWidth="2" className="dark:stroke-zinc-950" />
-                                    <circle cx="500" cy="30" r="6" fill="#2563eb" stroke="#ffffff" strokeWidth="2" className="dark:stroke-zinc-950" />
-                                </svg>
-                            </div>
+                            {(() => {
+                                const maxTraffic = Math.max(...safeAnalytics.hourlyTraffic, 1);
+                                const totalHourlyClicks = safeAnalytics.hourlyTraffic.reduce((a, b) => a + b, 0);
+                                
+                                // Generate SVG coordinates
+                                const points = safeAnalytics.hourlyTraffic.map((val, i) => {
+                                    const x = (i / 23) * 500;
+                                    // Scale y between 20px and 130px (chart height is 150px)
+                                    const y = 150 - (maxTraffic > 0 ? (val / maxTraffic) * 110 : 0) - 20;
+                                    return { x, y, val };
+                                });
+
+                                const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+                                const areaPath = `${linePath} L 500 150 L 0 150 Z`;
+
+                                // Find highest point for dynamic bubble
+                                const peakPoint = [...points].sort((a, b) => b.val - a.val)[0];
+
+                                return (
+                                    <>
+                                        <div className="flex justify-between items-center text-xs text-zinc-400 font-bold">
+                                            <span>{totalHourlyClicks} visits / last 24h</span>
+                                            {peakPoint && peakPoint.val > 0 && (
+                                                <span className="text-emerald-500">Peak: {peakPoint.val} clicks/hr</span>
+                                            )}
+                                        </div>
+                                        <div className="w-full flex-1 flex items-end pt-4">
+                                            <svg viewBox="0 0 500 150" className="w-full h-32 overflow-visible">
+                                                <defs>
+                                                    <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="0%" stopColor="#2563eb" stopOpacity="0.4"/>
+                                                        <stop offset="100%" stopColor="#2563eb" stopOpacity="0.0"/>
+                                                    </linearGradient>
+                                                </defs>
+                                                {/* Grid Lines */}
+                                                <line x1="0" y1="37.5" x2="500" y2="37.5" stroke="#e4e4e7" strokeDasharray="4 4" className="dark:stroke-zinc-800" />
+                                                <line x1="0" y1="75" x2="500" y2="75" stroke="#e4e4e7" strokeDasharray="4 4" className="dark:stroke-zinc-800" />
+                                                <line x1="0" y1="112.5" x2="500" y2="112.5" stroke="#e4e4e7" strokeDasharray="4 4" className="dark:stroke-zinc-800" />
+                                                
+                                                {/* Area */}
+                                                <path d={areaPath} fill="url(#chartGradient)" />
+                                                
+                                                {/* Line */}
+                                                <path d={linePath} fill="none" stroke="#2563eb" strokeWidth="4" strokeLinecap="round" />
+                                                
+                                                {/* Dot on current hour */}
+                                                {points[23] && (
+                                                    <circle cx={points[23].x} cy={points[23].y} r="5" fill="#2563eb" stroke="#ffffff" strokeWidth="2" className="dark:stroke-zinc-950" />
+                                                )}
+                                                
+                                                {/* Dot on peak hour */}
+                                                {peakPoint && peakPoint.val > 0 && peakPoint.x !== points[23].x && (
+                                                    <circle cx={peakPoint.x} cy={peakPoint.y} r="5" fill="#10b981" stroke="#ffffff" strokeWidth="2" className="dark:stroke-zinc-950" />
+                                                )}
+                                            </svg>
+                                        </div>
+                                    </>
+                                );
+                            })()}
                             <div className="flex justify-between text-[10px] text-zinc-400 font-bold uppercase tracking-widest pt-2 border-t border-zinc-100 dark:border-zinc-800">
-                                <span>00:00</span>
-                                <span>06:00</span>
-                                <span>12:00</span>
-                                <span>18:00</span>
+                                <span>24h ago</span>
+                                <span>18h ago</span>
+                                <span>12h ago</span>
+                                <span>6h ago</span>
                                 <span>Now</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Geography Breakdown */}
+                    {/* Geography Breakdown -> Top Performing Campaigns */}
                     <div className="lg:col-span-3 space-y-4">
-                        <div className="text-xs font-black text-zinc-400 uppercase tracking-widest">Top Traffic Sources</div>
-                        <div className="bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-6 h-60 flex flex-col justify-between">
+                        <div className="text-xs font-black text-zinc-400 uppercase tracking-widest">Campaign Performance</div>
+                        <div className="bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-6 h-60 flex flex-col justify-between overflow-y-auto">
                             <div className="space-y-3">
-                                {[
-                                    { country: '🇺🇸 United States', percentage: 45, color: 'bg-blue-600' },
-                                    { country: '🇮🇳 India', percentage: 30, color: 'bg-emerald-600' },
-                                    { country: '🇬🇧 United Kingdom', percentage: 15, color: 'bg-purple-600' },
-                                    { country: '🇩🇪 Germany', percentage: 10, color: 'bg-amber-600' }
-                                ].map((item, idx) => (
-                                    <div key={idx} className="space-y-1">
-                                        <div className="flex justify-between text-xs font-bold">
-                                            <span>{item.country}</span>
-                                            <span>{item.percentage}%</span>
-                                        </div>
-                                        <div className="w-full h-2 bg-zinc-100 dark:bg-zinc-900 rounded-full overflow-hidden">
-                                            <div className={`h-full ${item.color} rounded-full`} style={{ width: `${item.percentage}%` }}></div>
-                                        </div>
+                                {safeAnalytics.topCampaigns.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center h-44 text-zinc-400 text-[10px] font-black uppercase tracking-wider text-center">
+                                        No traffic received yet
                                     </div>
-                                ))}
+                                ) : (
+                                    safeAnalytics.topCampaigns.map((item, idx) => {
+                                        const colors = [
+                                            { bar: 'bg-blue-600' },
+                                            { bar: 'bg-emerald-600' },
+                                            { bar: 'bg-purple-600' },
+                                            { bar: 'bg-amber-600' }
+                                        ];
+                                        const color = colors[idx % colors.length];
+                                        return (
+                                            <div key={idx} className="space-y-1">
+                                                <div className="flex justify-between text-[11px] font-bold truncate">
+                                                    <span className="truncate pr-2">{item.title}</span>
+                                                    <span className="flex-shrink-0 text-zinc-500 dark:text-zinc-400">{item.percentage}% ({item.clicks})</span>
+                                                </div>
+                                                <div className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-900 rounded-full overflow-hidden">
+                                                    <div className={`h-full ${color.bar} rounded-full`} style={{ width: `${item.percentage}%` }}></div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    {/* Device Breakdown */}
+                    {/* Device Breakdown -> Traffic Timings Breakdown */}
                     <div className="lg:col-span-3 space-y-4">
-                        <div className="text-xs font-black text-zinc-400 uppercase tracking-widest">Device Breakdown</div>
+                        <div className="text-xs font-black text-zinc-400 uppercase tracking-widest">Hourly Distribution</div>
                         <div className="bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-6 h-60 flex flex-col justify-between">
-                            <div className="flex justify-around items-center h-full py-4">
-                                {[
-                                    { label: 'Mobile', value: '60%', desc: 'Smartphones' },
-                                    { label: 'Desktop', value: '35%', desc: 'PCs & Laptops' },
-                                    { label: 'Tablet', value: '5%', desc: 'iPad & Android' }
-                                ].map((item, idx) => (
-                                    <div key={idx} className="text-center">
-                                        <div className="text-2xl font-black text-zinc-900 dark:text-white">{item.value}</div>
-                                        <div className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">{item.label}</div>
-                                        <div className="text-[9px] text-zinc-400 font-medium">{item.desc}</div>
+                            {(() => {
+                                const { morning, afternoon, evening, night } = safeAnalytics.timings;
+                                const total = morning + afternoon + evening + night;
+                                const getPercent = (val: number) => total > 0 ? Math.round((val / total) * 100) : 0;
+                                
+                                return (
+                                    <div className="flex flex-col justify-around h-full py-2">
+                                        {[
+                                            { label: 'Morning', value: `${getPercent(morning)}%`, desc: '6 AM - 12 PM', color: 'text-amber-500' },
+                                            { label: 'Afternoon', value: `${getPercent(afternoon)}%`, desc: '12 PM - 6 PM', color: 'text-blue-500' },
+                                            { label: 'Evening', value: `${getPercent(evening)}%`, desc: '6 PM - 12 AM', color: 'text-purple-500' },
+                                            { label: 'Night', value: `${getPercent(night)}%`, desc: '12 AM - 6 AM', color: 'text-indigo-500' }
+                                        ].map((item, idx) => (
+                                            <div key={idx} className="flex items-center justify-between text-xs">
+                                                <div>
+                                                    <div className="font-extrabold text-[11px] tracking-tight">{item.label}</div>
+                                                    <div className="text-[9px] text-zinc-400 font-medium">{item.desc}</div>
+                                                </div>
+                                                <div className={`text-sm font-black ${item.color}`}>{item.value}</div>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
+                                );
+                            })()}
                         </div>
                     </div>
                 </div>

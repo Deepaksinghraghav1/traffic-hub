@@ -74,6 +74,11 @@ export default function App() {
         runningCampaigns: 0
     });
     const [recentActivity, setRecentActivity] = useState<any[]>([]);
+    const [analyticsData, setAnalyticsData] = useState({
+        hourlyTraffic: Array(24).fill(0),
+        topCampaigns: [] as { title: string; percentage: number; clicks: number }[],
+        timings: { morning: 0, afternoon: 0, evening: 0, night: 0 }
+    });
 
     // Verification Timer States
     const [timerModalOpen, setTimerModalOpen] = useState(false);
@@ -226,6 +231,71 @@ export default function App() {
                 })
             );
             setRecentActivity(enrichedActivities);
+
+            // 4. Load real analytics data if user has campaigns
+            let hourlyTraffic = Array(24).fill(0);
+            let topCampaignsData: { title: string; percentage: number; clicks: number }[] = [];
+            let timingData = { morning: 0, afternoon: 0, evening: 0, night: 0 };
+
+            if (campaigns.length > 0) {
+                const campaignIds = campaigns.map(c => c.$id);
+                try {
+                    const clickDocs = await databaseService.getCampaignClicks(campaignIds, 200);
+                    
+                    // A. Hourly traffic (last 24 hours)
+                    const now = new Date();
+                    clickDocs.forEach((click: any) => {
+                        const clickTime = new Date(click.timestamp);
+                        const diffMs = now.getTime() - clickTime.getTime();
+                        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                        if (diffHours >= 0 && diffHours < 24) {
+                            hourlyTraffic[23 - diffHours]++;
+                        }
+                    });
+
+                    // B. Top campaigns by clicks received
+                    const campaignClicksMap: { [key: string]: { title: string; count: number } } = {};
+                    campaigns.forEach(c => {
+                        campaignClicksMap[c.$id] = { title: c.title, count: 0 };
+                    });
+                    
+                    clickDocs.forEach((click: any) => {
+                        if (campaignClicksMap[click.campaignId]) {
+                            campaignClicksMap[click.campaignId].count++;
+                        }
+                    });
+
+                    const sortedCampaigns = Object.values(campaignClicksMap)
+                        .sort((a, b) => b.count - a.count);
+
+                    const totalCampaignClicks = sortedCampaigns.reduce((acc, c) => acc + c.count, 0);
+
+                    topCampaignsData = sortedCampaigns.slice(0, 4).map(c => ({
+                        title: c.title,
+                        clicks: c.count,
+                        percentage: totalCampaignClicks > 0 ? Math.round((c.count / totalCampaignClicks) * 100) : 0
+                    }));
+
+                    // C. Timings distribution
+                    clickDocs.forEach((click: any) => {
+                        const clickTime = new Date(click.timestamp);
+                        const hour = clickTime.getHours();
+                        if (hour >= 6 && hour < 12) timingData.morning++;
+                        else if (hour >= 12 && hour < 18) timingData.afternoon++;
+                        else if (hour >= 18 && hour < 24) timingData.evening++;
+                        else timingData.night++;
+                    });
+
+                } catch (err) {
+                    console.error("Error computing analytics stats:", err);
+                }
+            }
+
+            setAnalyticsData({
+                hourlyTraffic,
+                topCampaigns: topCampaignsData,
+                timings: timingData
+            });
         } catch (error) {
             console.error('Error loading dashboard stats:', error);
         }
@@ -376,8 +446,10 @@ export default function App() {
         if (!user || !verifyingCampaign) return;
 
         let multiplier = 1;
+        const hasTurbo = user ? Date.now() < Number(localStorage.getItem(`turboMultiplierUntil_${user.$id}`) || 0) : false;
         if (userPlan === 'pro') multiplier = 5;
         else if (userPlan === 'business') multiplier = 10;
+        else if (hasTurbo) multiplier = 5;
         const rewardPoints = 10 * multiplier;
 
         try {
@@ -407,12 +479,44 @@ export default function App() {
         }
     };
 
-    const handlePurchase = async (cost: number) => {
+    const handlePurchase = async (cost: number, itemId: number) => {
         if (!user) return;
         
         try {
             const profile = await databaseService.getProfile(user.email);
             if (profile) {
+                if (itemId === 1) {
+                    const today = new Date().toDateString();
+                    const lastClaim = localStorage.getItem(`lastDailyClaim_${user.$id}`);
+                    
+                    if (lastClaim === today) {
+                        alert("You have already claimed your Daily Bonus today!");
+                        return;
+                    }
+                    
+                    const rewardPoints = 100;
+                    const newPoints = (profile.points || 0) + rewardPoints;
+                    await databaseService.updatePoints(profile.$id, newPoints);
+                    setUserPoints(newPoints);
+                    localStorage.setItem(`lastDailyClaim_${user.$id}`, today);
+                    alert("Success! 100 free points have been added to your balance.");
+                    return;
+                }
+
+                if (itemId === 7) {
+                    if (profile.points < 7500) {
+                        alert("You don't have enough points to purchase the Elite Expansion Pack!");
+                        return;
+                    }
+                    const newPoints = (profile.points || 0) - 7500 + 10000;
+                    await databaseService.updatePoints(profile.$id, newPoints);
+                    setUserPoints(newPoints);
+                    localStorage.setItem(`hasVIPBadge_${user.$id}`, 'true');
+                    localStorage.setItem(`hasPremiumIdentity_${user.$id}`, 'true');
+                    alert("Success! Purchased Elite Expansion Pack. 10,000 points added (+2,500 net gain) and VIP Status unlocked!");
+                    return;
+                }
+
                 if (profile.points < cost) {
                     alert("You don't have enough points!");
                     return;
@@ -421,7 +525,26 @@ export default function App() {
                 const newPoints = profile.points - cost;
                 await databaseService.updatePoints(profile.$id, newPoints);
                 setUserPoints(newPoints);
-                alert("Purchase successful! Reward activated.");
+
+                // Handle other item benefits in local storage
+                if (itemId === 2) {
+                    localStorage.setItem(`hasPremiumIdentity_${user.$id}`, 'true');
+                    alert("Purchase successful! Premium Identity activated. Enjoy your pink name glow!");
+                } else if (itemId === 3) {
+                    localStorage.setItem(`turboMultiplierUntil_${user.$id}`, (Date.now() + 24 * 60 * 60 * 1000).toString());
+                    alert("Purchase successful! Turbo Multiplier activated. Earn 5x points for the next 24 hours!");
+                } else if (itemId === 4) {
+                    localStorage.setItem(`hasFeaturedCampaign_${user.$id}`, 'true');
+                    alert("Purchase successful! Featured Campaign privileges activated.");
+                } else if (itemId === 5) {
+                    localStorage.setItem(`hasMasteryTrophy_${user.$id}`, 'true');
+                    alert("Purchase successful! Mastery Trophy unlocked.");
+                } else if (itemId === 6) {
+                    localStorage.setItem(`hasVIPConcierge_${user.$id}`, 'true');
+                    alert("Purchase successful! VIP Concierge support unlocked.");
+                } else {
+                    alert("Purchase successful! Reward activated.");
+                }
             }
         } catch (err) {
             console.error('Purchase error:', err);
@@ -577,7 +700,11 @@ export default function App() {
                         </div>
                         <ThemeToggle theme={theme} setTheme={setTheme} direction="up" />
                         <div className={`size-8 bg-zinc-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-xs font-black border transition-all ${
-                            userRole === 'admin'
+                            user && localStorage.getItem(`hasVIPBadge_${user.$id}`) === 'true'
+                            ? 'border-amber-400 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.7)] animate-pulse'
+                            : user && localStorage.getItem(`hasPremiumIdentity_${user.$id}`) === 'true'
+                            ? 'border-pink-500 text-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.7)]'
+                            : userRole === 'admin'
                             ? 'border-purple-500 text-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
                             : userPlan === 'pro' 
                             ? 'border-blue-500 text-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)]' 
@@ -658,7 +785,7 @@ export default function App() {
                             )}
 
                             {/* Notifications Dropdown */}
-                            <div className="relative">
+                            <div className="md:relative">
                                 <button 
                                     onClick={() => setShowNotifications(!showNotifications)}
                                     className="relative p-2 md:p-3 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl md:rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
@@ -678,7 +805,7 @@ export default function App() {
                                         />
                                         
                                         {/* Dropdown panel */}
-                                        <div className="absolute right-0 mt-2 w-72 sm:w-96 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                        <div className="absolute top-full md:top-auto left-4 right-4 md:left-auto md:right-0 mt-2 w-auto md:w-96 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                                             <div className="p-4 border-b border-zinc-150 dark:border-zinc-800 flex items-center justify-between">
                                                 <h3 className="font-extrabold text-sm tracking-tight">Notifications</h3>
                                                 <div className="flex gap-2">
@@ -788,6 +915,7 @@ export default function App() {
                                 userPlan={userPlan}
                                 onUpgradeClick={() => setActiveTab('settings')}
                                 isAdmin={userRole === 'admin'}
+                                analytics={analyticsData}
                             />
                         )}
 

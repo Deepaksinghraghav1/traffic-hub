@@ -12,7 +12,7 @@ import {
 
 interface StorePageProps {
     userPoints: number;
-    onPurchase: (cost: number) => void;
+    onPurchase: (cost: number, itemId: number) => void;
 }
 
 export function StorePage({ userPoints, onPurchase }: StorePageProps) {
@@ -141,7 +141,7 @@ export function StorePage({ userPoints, onPurchase }: StorePageProps) {
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => canAfford && onPurchase(item.cost)}
+                                    onClick={() => canAfford && onPurchase(item.cost, item.id)}
                                     disabled={!canAfford}
                                     className={`w-full xs:w-auto px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${canAfford
                                             ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20 hover:scale-105 active:scale-95'
@@ -173,7 +173,7 @@ export function StorePage({ userPoints, onPurchase }: StorePageProps) {
                             Unlock 10,000 points and a unique VIP badge instantly. Save 25% for the next 2 hours.
                         </p>
                         <button
-                            onClick={() => userPoints >= 7500 && onPurchase(7500)}
+                            onClick={() => userPoints >= 7500 && onPurchase(7500, 7)}
                             disabled={userPoints < 7500}
                             className={`w-full sm:w-auto bg-white px-8 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[2rem] font-black text-lg md:text-xl transition-all shadow-2xl flex items-center justify-center gap-3 mx-auto md:mx-0 ${userPoints >= 7500
                                     ? 'text-orange-600 hover:bg-orange-50 hover:scale-105 active:scale-95'
