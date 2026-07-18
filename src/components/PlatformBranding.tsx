@@ -55,8 +55,8 @@ export const PlatformBranding: React.FC<PlatformBrandingProps> = ({ onClick }) =
                 </svg>
             </div>
 
-            {/* Modern Typography with Light/Dark responsive layout */}
-            <span className="text-xl font-black tracking-tight text-zinc-900 dark:text-slate-100 group-hover:text-black dark:group-hover:text-white transition-all duration-300">
+            {/* Modern Typography without the Gold */}
+            <span className="text-xl font-black tracking-tight text-slate-100 group-hover:text-white transition-all duration-300">
                 Nexus
                 <span className="ml-1 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500 font-black group-hover:from-cyan-300 group-hover:to-fuchsia-400 transition-all duration-300">
                     Flow
