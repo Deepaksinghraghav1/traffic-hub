@@ -189,11 +189,10 @@ export function AdminView({ stats: initialStats }: AdminViewProps) {
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
                     { label: 'Total Users', value: initialStats.totalUsers, icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
                     { label: 'Active Campaigns', value: activeCampaigns.length, icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                    { label: 'Pending Approval', value: pendingCampaigns.length, icon: Clock, color: 'text-amber-500', bg: 'bg-amber-500/10' },
                     { label: 'System Balance', value: initialStats.revenue, icon: BarChart3, color: 'text-purple-500', bg: 'bg-purple-500/10' },
                 ].map((stat, i) => (
                     <div key={i} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-2xl p-6 shadow-sm">
@@ -209,48 +208,8 @@ export function AdminView({ stats: initialStats }: AdminViewProps) {
             </div>
 
             {/* Campaign Management Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-6">
                 
-                {/* Pending Requests */}
-                <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-[2.5rem] overflow-hidden shadow-sm">
-                    <div className="p-8 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between bg-amber-50/50 dark:bg-amber-500/5">
-                        <div className="flex items-center gap-3">
-                            <Clock className="size-5 text-amber-500" />
-                            <h3 className="text-lg font-black tracking-tight">Pending Approval</h3>
-                        </div>
-                        <span className="bg-amber-500 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">{pendingCampaigns.length}</span>
-                    </div>
-
-                    <div className="p-6 space-y-4 max-h-[500px] overflow-y-auto">
-                        {pendingCampaigns.length === 0 ? (
-                            <div className="text-center py-12 text-zinc-400 text-xs font-bold uppercase tracking-widest">No pending requests</div>
-                        ) : (
-                            pendingCampaigns.map((camp) => (
-                                <div key={camp.$id} className="p-4 bg-zinc-50 dark:bg-zinc-950 rounded-2xl border border-zinc-100 dark:border-white/5">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <div className="font-bold text-sm truncate pr-4">{camp.title}</div>
-                                        <div className="flex gap-2">
-                                            <button onClick={() => handleDelete(camp.$id)} className="p-2 text-zinc-400 hover:text-red-500 transition-colors">
-                                                <Trash2 className="size-4" />
-                                            </button>
-                                            <button onClick={() => handleApprove(camp.$id)} className="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors">
-                                                <CheckCircle2 className="size-4" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div className="text-[10px] text-zinc-400 truncate mb-2">{camp.url}</div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-[10px] font-black text-purple-500 bg-purple-500/10 px-2 py-0.5 rounded-md">{camp.pointsAllocated} PTS</span>
-                                        <a href={camp.url} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline text-[10px] font-bold flex items-center gap-1">
-                                            Preview <ExternalLink className="size-3" />
-                                        </a>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </div>
-
                 {/* Active Campaigns (Management) */}
                 <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-[2.5rem] overflow-hidden shadow-sm">
                     <div className="p-8 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between bg-emerald-50/50 dark:bg-emerald-500/5">
@@ -290,9 +249,9 @@ export function AdminView({ stats: initialStats }: AdminViewProps) {
                                 </div>
                             ))
                         )}
+                    </div>
                 </div>
             </div>
-        </div>
 
             {/* God Mode Control Deck Panel */}
             <div className="bg-gradient-to-br from-purple-900/10 via-indigo-900/10 to-zinc-900 border border-purple-500/30 rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden shadow-2xl shadow-purple-900/20">
