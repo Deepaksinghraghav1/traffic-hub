@@ -45,7 +45,7 @@ export function ContactPage({ onBack, onGetStarted, theme, setTheme }: ContactPa
                     {/* Contact Info */}
                     <div>
                         <h2 className="text-3xl font-black mb-10 tracking-tight">Contact Information</h2>
-                        
+
                         <div className="space-y-10">
                             <div className="flex items-start gap-6">
                                 <div className="size-14 bg-blue-500/10 rounded-2xl flex items-center justify-center flex-shrink-0">
@@ -92,16 +92,16 @@ export function ContactPage({ onBack, onGetStarted, theme, setTheme }: ContactPa
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                                 <div className="space-y-3">
                                     <label className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1">First Name</label>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         placeholder="John"
                                         className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-6 py-4 outline-none focus:border-blue-500 transition-all text-zinc-900 dark:text-white font-medium shadow-inner"
                                     />
                                 </div>
                                 <div className="space-y-3">
                                     <label className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1">Last Name</label>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         placeholder="Doe"
                                         className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-6 py-4 outline-none focus:border-blue-500 transition-all text-zinc-900 dark:text-white font-medium shadow-inner"
                                     />
@@ -110,8 +110,8 @@ export function ContactPage({ onBack, onGetStarted, theme, setTheme }: ContactPa
 
                             <div className="space-y-3">
                                 <label className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1">Email Address</label>
-                                <input 
-                                    type="email" 
+                                <input
+                                    type="email"
                                     placeholder="john@example.com"
                                     className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-6 py-4 outline-none focus:border-blue-500 transition-all text-zinc-900 dark:text-white font-medium shadow-inner"
                                 />
@@ -134,7 +134,7 @@ export function ContactPage({ onBack, onGetStarted, theme, setTheme }: ContactPa
 
                             <div className="space-y-3">
                                 <label className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1">Message</label>
-                                <textarea 
+                                <textarea
                                     rows={4}
                                     placeholder="How can we help you?"
                                     className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-6 py-4 outline-none focus:border-blue-500 transition-all text-zinc-900 dark:text-white font-medium shadow-inner resize-none"

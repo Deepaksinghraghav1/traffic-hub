@@ -28,9 +28,9 @@ interface LandingPageProps {
     setTheme: (theme: ThemeMode) => void;
 }
 
-export function LandingPage({ 
-    onGetStarted, 
-    onHowItWorks, 
+export function LandingPage({
+    onGetStarted,
+    onHowItWorks,
     onPricing,
     onFeatures,
     onAbout,
@@ -86,13 +86,8 @@ export function LandingPage({
             <nav className="fixed top-0 left-0 w-full z-50 px-2 sm:px-6 py-4 sm:py-6">
                 <div className="max-w-7xl mx-auto px-2 sm:px-8 py-2 sm:py-4 bg-white/70 dark:bg-black/70 backdrop-blur-2xl border border-zinc-200/50 dark:border-white/10 rounded-2xl sm:rounded-3xl shadow-sm">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                            <div className="size-8 sm:size-10 bg-zinc-900 dark:bg-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/10">
-                                <Zap className="size-5 sm:size-6 text-white" />
-                            </div>
-                            <span className="font-extrabold text-xl sm:text-2xl tracking-tighter text-zinc-900 dark:text-white hidden xs:block">TrafficHub</span>
-                        </div>
-                        
+                        <PlatformBranding onClick={onFeatures} />
+
                         <div className="hidden lg:flex items-center gap-10">
                             {[
                                 { label: 'Features', action: onFeatures },
@@ -100,8 +95,8 @@ export function LandingPage({
                                 { label: 'How it Works', action: onHowItWorks },
                                 { label: 'About', action: onAbout }
                             ].map((item, i) => (
-                                <button 
-                                    key={i} 
+                                <button
+                                    key={i}
                                     onClick={item.action}
                                     className="text-xs font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-white transition-colors relative group"
                                 >
@@ -113,13 +108,13 @@ export function LandingPage({
 
                         <div className="flex items-center gap-1.5 sm:gap-4">
                             <ThemeToggle theme={theme} setTheme={setTheme} />
-                            <button 
+                            <button
                                 onClick={onGetStarted}
                                 className="hidden md:block text-xs font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white px-4 transition-colors"
                             >
                                 Sign In
                             </button>
-                            <button 
+                            <button
                                 onClick={onGetStarted}
                                 className="bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all shadow-xl hover:scale-105 active:scale-95"
                             >
@@ -216,7 +211,7 @@ export function LandingPage({
                 <div className="max-w-7xl mx-auto">
                     <div className="bg-white dark:bg-black border border-zinc-200 dark:border-white/10 rounded-3xl md:rounded-[2.5rem] p-6 md:p-12 relative overflow-hidden shadow-sm dark:shadow-none">
                         <div className="absolute top-0 right-0 size-[500px] bg-blue-600/5 blur-[120px]"></div>
-                        
+
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-center relative z-10">
                             <div>
                                 <h2 className="text-3xl md:text-5xl font-black mb-6 md:mb-8 leading-[1.2] md:leading-[1.1] tracking-tight text-zinc-900 dark:text-white">
@@ -314,17 +309,12 @@ export function LandingPage({
                 <div className="max-w-7xl mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-24">
                         <div className="md:col-span-1">
-                            <div className="flex items-center gap-3 mb-8">
-                                <div className="size-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/20">
-                                    <Zap className="size-7 text-white" />
-                                </div>
-                                <span className="font-extrabold text-3xl tracking-tighter text-zinc-900 dark:text-white">TrafficHub</span>
-                            </div>
+                            <PlatformBranding />
                             <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium text-lg">
                                 Building the world's most transparent and high-performance traffic exchange network.
                             </p>
                         </div>
-                        
+
                         <div>
                             <h4 className="font-black uppercase tracking-widest text-xs mb-8 text-zinc-900 dark:text-zinc-300">Product</h4>
                             <ul className="space-y-5 text-zinc-500 dark:text-zinc-400 font-bold text-sm">
@@ -354,7 +344,7 @@ export function LandingPage({
                             </ul>
                         </div>
                     </div>
-                    
+
                     <div className="pt-12 border-t border-zinc-200 dark:border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
                         <div className="text-zinc-500 dark:text-zinc-500 font-bold text-sm">
                             © 2026 TrafficHub Inc. Crafted with passion for creators worldwide.

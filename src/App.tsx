@@ -129,7 +129,7 @@ export default function App() {
     // Theme Effect
     useEffect(() => {
         const root = window.document.documentElement;
-        
+
         const applyTheme = () => {
             if (theme === 'system') {
                 const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -224,7 +224,7 @@ export default function App() {
                 const campaignIds = campaigns.map(c => c.$id);
                 try {
                     const clickDocs = await databaseService.getCampaignClicks(campaignIds, 200);
-                    
+
                     // A. Hourly traffic (last 24 hours)
                     const now = new Date();
                     clickDocs.forEach((click: any) => {
@@ -241,7 +241,7 @@ export default function App() {
                     campaigns.forEach(c => {
                         campaignClicksMap[c.$id] = { title: c.title, count: 0 };
                     });
-                    
+
                     clickDocs.forEach((click: any) => {
                         if (campaignClicksMap[click.campaignId]) {
                             campaignClicksMap[click.campaignId].count++;
@@ -294,7 +294,7 @@ export default function App() {
                 if (currentUser) {
                     setUser(currentUser);
                     let profile = await databaseService.getProfile(currentUser.email);
-                    
+
                     // Safety Check: If user exists but profile doesn't, create it now
                     if (!profile) {
                         console.log('Profile missing, creating one now...');
@@ -306,7 +306,7 @@ export default function App() {
                             myReferralCode
                         );
                     }
-                    
+
                     if (profile) {
                         setUserPoints(profile.points || 0);
                         setUserRole(profile.role || 'user');
@@ -331,18 +331,18 @@ export default function App() {
         if (currentUser) {
             setUser(currentUser);
             let profile = await databaseService.getProfile(currentUser.email);
-            
+
             // Safety Check: Create profile if missing on login (e.g. Google Auth)
             if (!profile) {
                 const myReferralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
                 profile = await databaseService.createProfile(
-                    currentUser.$id, 
-                    currentUser.email, 
+                    currentUser.$id,
+                    currentUser.email,
                     currentUser.name,
                     myReferralCode
                 );
             }
-            
+
             setUserPoints(profile.points || 0);
             setUserRole(profile.role || 'user');
             setUserReferralCode(profile.referralCode || '');
@@ -402,9 +402,9 @@ export default function App() {
 
     const handleTaskClick = async (campaign: any) => {
         if (!user) return;
-        
+
         // --- Security Checks ---
-        
+
         // 1. Prevent Self-Click
         if (campaign.userId === user.$id) {
             alert("You cannot earn points from your own campaign!");
@@ -522,7 +522,7 @@ export default function App() {
                 const newPoints = (profile.points || 0) + rewardPoints;
                 await databaseService.updatePoints(profile.$id, newPoints);
                 setUserPoints(newPoints);
-                
+
                 // Update Campaign Stats (Deduct FULL CPC from Campaign) using resolved ledger values
                 const newRemaining = Math.max(0, dynamicRemaining - campaignCpc);
                 const newClicks = clicksCount + 1;
@@ -548,7 +548,7 @@ export default function App() {
 
     const handlePurchase = async (cost: number, itemId: number) => {
         if (!user) return;
-        
+
         setIsProcessing(true);
         try {
             const profile = await databaseService.getProfile(user.email);
@@ -636,8 +636,8 @@ export default function App() {
     const renderPage = () => {
         switch (currentPage) {
             case 'landing':
-                return <LandingPage 
-                    onGetStarted={() => setCurrentPage('signIn')} 
+                return <LandingPage
+                    onGetStarted={() => setCurrentPage('signIn')}
                     onHowItWorks={() => setCurrentPage('howItWorks')}
                     onPricing={() => setCurrentPage('pricing')}
                     onFeatures={() => setCurrentPage('features')}
@@ -712,8 +712,8 @@ export default function App() {
                                 key={item.id}
                                 onClick={() => setActiveTab(item.id)}
                                 className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 relative group ${isActive
-                                        ? 'bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-600/20'
-                                        : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-200 border border-transparent'
+                                    ? 'bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-600/20'
+                                    : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-200 border border-transparent'
                                     }`}
                             >
                                 <Icon className={`size-4 transition-transform ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
@@ -724,7 +724,7 @@ export default function App() {
                             </button>
                         );
                     })}
-                    
+
                     {isAdmin && (
                         <button
                             onClick={() => setActiveTab('admin')}
@@ -758,19 +758,18 @@ export default function App() {
                             </span>
                         </div>
                         <ThemeToggle theme={theme} setTheme={setTheme} direction="up" />
-                        <div className={`size-8 bg-zinc-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-xs font-black border transition-all ${
-                            userIsVIP
-                            ? 'border-amber-400 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.7)] animate-pulse'
-                            : user && localStorage.getItem(`hasPremiumIdentity_${user.$id}`) === 'true'
-                            ? 'border-pink-500 text-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.7)]'
-                            : userRole === 'admin'
-                            ? 'border-purple-500 text-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
-                            : userPlan === 'pro' 
-                            ? 'border-blue-500 text-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)]' 
-                            : userPlan === 'business'
-                            ? 'border-amber-500 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.3)]'
-                            : 'border-zinc-300 dark:border-zinc-700 text-zinc-500'
-                        }`}>
+                        <div className={`size-8 bg-zinc-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-xs font-black border transition-all ${userIsVIP
+                                ? 'border-amber-400 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.7)] animate-pulse'
+                                : user && localStorage.getItem(`hasPremiumIdentity_${user.$id}`) === 'true'
+                                    ? 'border-pink-500 text-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.7)]'
+                                    : userRole === 'admin'
+                                        ? 'border-purple-500 text-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
+                                        : userPlan === 'pro'
+                                            ? 'border-blue-500 text-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)]'
+                                            : userPlan === 'business'
+                                                ? 'border-amber-500 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.3)]'
+                                                : 'border-zinc-300 dark:border-zinc-700 text-zinc-500'
+                            }`}>
                             {getInitials(user?.name || '')}
                         </div>
                     </div>
@@ -787,8 +786,8 @@ export default function App() {
                             key={item.id}
                             onClick={() => setActiveTab(item.id)}
                             className={`flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all ${isActive
-                                    ? 'text-blue-600 dark:text-blue-400 bg-blue-400/5'
-                                    : 'text-zinc-500'
+                                ? 'text-blue-600 dark:text-blue-400 bg-blue-400/5'
+                                : 'text-zinc-500'
                                 }`}
                         >
                             <Icon className="size-5" />
@@ -834,18 +833,17 @@ export default function App() {
                                     Admin
                                 </div>
                             ) : userPlan !== 'free' && (
-                                <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-black text-[9px] uppercase tracking-widest ${
-                                    userPlan === 'pro' 
-                                    ? 'bg-blue-500/10 text-blue-600 border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.1)]' 
-                                    : 'bg-amber-500/10 text-amber-600 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]'
-                                }`}>
+                                <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-black text-[9px] uppercase tracking-widest ${userPlan === 'pro'
+                                        ? 'bg-blue-500/10 text-blue-600 border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.1)]'
+                                        : 'bg-amber-500/10 text-amber-600 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]'
+                                    }`}>
                                     {userPlan}
                                 </div>
                             )}
 
                             {/* Notifications Dropdown */}
                             <div className="md:relative">
-                                <button 
+                                <button
                                     onClick={() => setShowNotifications(!showNotifications)}
                                     className="relative p-2 md:p-3 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl md:rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
                                 >
@@ -854,21 +852,21 @@ export default function App() {
                                         <span className="absolute top-2.5 right-2.5 md:top-3 md:right-3 size-1.5 md:size-2 bg-red-500 rounded-full border-2 border-white dark:border-zinc-900"></span>
                                     )}
                                 </button>
-                                
+
                                 {showNotifications && (
                                     <>
                                         {/* Click outside overlay */}
-                                        <div 
-                                            className="fixed inset-0 z-40" 
+                                        <div
+                                            className="fixed inset-0 z-40"
                                             onClick={() => setShowNotifications(false)}
                                         />
-                                        
+
                                         {/* Dropdown panel */}
                                         <div className="absolute top-full md:top-auto left-4 right-4 md:left-auto md:right-0 mt-2 w-auto md:w-96 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                                             <div className="p-4 border-b border-zinc-150 dark:border-zinc-800 flex items-center justify-between">
                                                 <h3 className="font-extrabold text-sm tracking-tight">Notifications</h3>
                                                 <div className="flex gap-2">
-                                                    <button 
+                                                    <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             markAllNotificationsAsRead();
@@ -878,7 +876,7 @@ export default function App() {
                                                         Mark all as read
                                                     </button>
                                                     <span className="text-zinc-300 dark:text-zinc-700">|</span>
-                                                    <button 
+                                                    <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             clearAllNotifications();
@@ -897,24 +895,22 @@ export default function App() {
                                                     </div>
                                                 ) : (
                                                     notifications.map((notification) => (
-                                                        <div 
+                                                        <div
                                                             key={notification.id}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 markNotificationAsRead(notification.id);
                                                             }}
-                                                            className={`p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors cursor-pointer relative ${
-                                                                !notification.read ? 'bg-blue-500/5 dark:bg-blue-500/5' : ''
-                                                            }`}
+                                                            className={`p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors cursor-pointer relative ${!notification.read ? 'bg-blue-500/5 dark:bg-blue-500/5' : ''
+                                                                }`}
                                                         >
                                                             <div className="flex items-start gap-3">
-                                                                <div className={`size-8 rounded-xl flex items-center justify-center flex-shrink-0 border ${
-                                                                    notification.type === 'sparkle' 
-                                                                    ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-                                                                    : notification.type === 'campaign'
-                                                                    ? 'bg-purple-500/10 text-purple-500 border-purple-500/20'
-                                                                    : 'bg-blue-500/10 text-blue-500 border-blue-500/20'
-                                                                }`}>
+                                                                <div className={`size-8 rounded-xl flex items-center justify-center flex-shrink-0 border ${notification.type === 'sparkle'
+                                                                        ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                                                                        : notification.type === 'campaign'
+                                                                            ? 'bg-purple-500/10 text-purple-500 border-purple-500/20'
+                                                                            : 'bg-blue-500/10 text-blue-500 border-blue-500/20'
+                                                                    }`}>
                                                                     {notification.type === 'sparkle' ? (
                                                                         <Sparkles className="size-4" />
                                                                     ) : notification.type === 'campaign' ? (
@@ -969,7 +965,7 @@ export default function App() {
                 <div className="flex-1 overflow-y-auto p-4 md:p-12 pb-24 md:pb-12 scrollbar-hide">
                     <div className="max-w-7xl mx-auto">
                         {activeTab === 'dashboard' && (
-                            <DashboardView 
+                            <DashboardView
                                 userPoints={userPoints}
                                 referralCode={userReferralCode}
                                 stats={dashboardStats}
@@ -984,15 +980,15 @@ export default function App() {
                         )}
 
                         {activeTab === 'earn' && (
-                            <EarnPointsView 
+                            <EarnPointsView
                                 userId={user?.$id || ''}
-                                onTaskClick={handleTaskClick} 
+                                onTaskClick={handleTaskClick}
                             />
                         )}
 
                         {activeTab === 'campaigns' && (
-                            <CampaignsView 
-                                userId={user?.$id || ''} 
+                            <CampaignsView
+                                userId={user?.$id || ''}
                                 userEmail={user?.email || ''}
                                 userPoints={userPoints}
                                 onPointsUpdate={setUserPoints}
@@ -1006,9 +1002,9 @@ export default function App() {
                         )}
 
                         {activeTab === 'settings' && (
-                            <SettingsPage 
-                                theme={theme} 
-                                setTheme={setTheme} 
+                            <SettingsPage
+                                theme={theme}
+                                setTheme={setTheme}
                                 user={user}
                                 userPlan={userPlan}
                                 onPlanUpdate={setUserPlan}
@@ -1016,7 +1012,7 @@ export default function App() {
                         )}
 
                         {activeTab === 'admin' && isAdmin && (
-                            <AdminView 
+                            <AdminView
                                 stats={{
                                     totalUsers: 1240,
                                     totalCampaigns: 45,

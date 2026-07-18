@@ -127,8 +127,8 @@ export function PricingPage({ onGetStarted, onBack, theme, setTheme }: PricingPa
                                 <button
                                     onClick={onGetStarted}
                                     className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest mb-10 transition-all shadow-xl hover:scale-105 active:scale-95 ${plan.popular
-                                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white'
-                                            : 'bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white'
+                                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white'
+                                        : 'bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white'
                                         }`}
                                 >
                                     {plan.cta}

@@ -62,12 +62,12 @@ export function SupportPage({ onBack, onGetStarted, theme, setTheme }: SupportPa
                         <HelpCircle className="size-10 text-blue-600 dark:text-blue-400" />
                     </div>
                     <h1 className="text-4xl sm:text-6xl font-black mb-10 tracking-tight">How can we help?</h1>
-                    
+
                     <div className="relative max-w-2xl mx-auto group">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 size-6 text-zinc-400 group-focus-within:text-blue-500 transition-colors" />
-                        <input 
-                            type="text" 
-                            placeholder="Search for answers..." 
+                        <input
+                            type="text"
+                            placeholder="Search for answers..."
                             className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl py-6 pl-16 pr-6 outline-none focus:border-blue-500 transition-all text-xl shadow-2xl dark:shadow-none text-zinc-900 dark:text-white font-medium"
                         />
                     </div>

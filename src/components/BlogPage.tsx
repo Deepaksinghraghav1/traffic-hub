@@ -91,7 +91,7 @@ export function BlogPage({ onBack, onGetStarted, theme, setTheme }: BlogPageProp
                                     {post.category}
                                 </div>
                             </div>
-                            
+
                             {/* Content */}
                             <div className="p-10 flex flex-col flex-1">
                                 <div className="flex items-center gap-4 text-xs font-bold text-zinc-400 dark:text-zinc-500 mb-6 uppercase tracking-widest">
@@ -112,7 +112,7 @@ export function BlogPage({ onBack, onGetStarted, theme, setTheme }: BlogPageProp
                     ))}
                 </div>
             </div>
-            
+
             {/* Newsletter */}
             <div className="max-w-4xl mx-auto px-6 mt-32">
                 <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[3rem] p-10 sm:p-16 text-center shadow-xl dark:shadow-none relative overflow-hidden">
@@ -123,9 +123,9 @@ export function BlogPage({ onBack, onGetStarted, theme, setTheme }: BlogPageProp
                             Get the best traffic generation tips delivered straight to your inbox every month.
                         </p>
                         <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
-                            <input 
-                                type="email" 
-                                placeholder="Enter your email" 
+                            <input
+                                type="email"
+                                placeholder="Enter your email"
                                 className="flex-1 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-6 py-4 focus:outline-none focus:border-blue-500 text-zinc-900 dark:text-white font-medium shadow-inner"
                             />
                             <button className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl hover:scale-105 active:scale-95">
