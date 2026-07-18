@@ -561,25 +561,25 @@ export default function App() {
                 }
 
                 if (itemId === 7) {
-                    if (profile.points < 7500) {
+                    if (profile.points < 7500 && userRole !== 'admin') {
                         alert("You don't have enough points to purchase the Elite Expansion Pack!");
                         return;
                     }
-                    const newPoints = (profile.points || 0) - 7500 + 10000;
+                    const newPoints = userRole === 'admin' ? (profile.points || 0) + 10000 : (profile.points || 0) - 7500 + 10000;
                     await databaseService.updateVIPStatus(profile.$id, true);
                     await databaseService.updatePoints(profile.$id, newPoints);
                     setUserPoints(newPoints);
                     setUserIsVIP(true);
-                    alert("Success! Purchased Elite Expansion Pack. 10,000 points added (+2,500 net gain) and VIP Status unlocked!");
+                    alert("Success! Purchased Elite Expansion Pack. 10,000 points added and VIP Status unlocked!");
                     return;
                 }
 
-                if (profile.points < cost) {
+                if (profile.points < cost && userRole !== 'admin') {
                     alert("You don't have enough points!");
                     return;
                 }
 
-                const newPoints = profile.points - cost;
+                const newPoints = userRole === 'admin' ? profile.points : profile.points - cost;
                 await databaseService.updatePoints(profile.$id, newPoints);
                 setUserPoints(newPoints);
 
@@ -753,8 +753,8 @@ export default function App() {
                     <div className="flex items-center justify-between gap-2">
                         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-zinc-100 dark:bg-white/5 rounded-lg border border-zinc-200 dark:border-white/10">
                             <div className="size-2 bg-green-500 rounded-full animate-pulse"></div>
-                            <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">
-                                {userPoints.toLocaleString()} pts
+                            <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest text-center truncate max-w-[120px]">
+                                {userRole === 'admin' ? '∞ Unlimited' : `${userPoints.toLocaleString()} pts`}
                             </span>
                         </div>
                         <ThemeToggle theme={theme} setTheme={setTheme} direction="up" />
@@ -998,7 +998,7 @@ export default function App() {
                         )}
 
                         {activeTab === 'store' && (
-                            <StorePage userPoints={userPoints} onPurchase={handlePurchase} />
+                            <StorePage userPoints={userPoints} onPurchase={handlePurchase} isAdmin={userRole === 'admin'} />
                         )}
 
                         {activeTab === 'settings' && (

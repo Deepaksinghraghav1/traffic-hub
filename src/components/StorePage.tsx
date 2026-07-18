@@ -13,9 +13,10 @@ import {
 interface StorePageProps {
     userPoints: number;
     onPurchase: (cost: number, itemId: number) => void;
+    isAdmin?: boolean;
 }
 
-export function StorePage({ userPoints, onPurchase }: StorePageProps) {
+export function StorePage({ userPoints, onPurchase, isAdmin = false }: StorePageProps) {
     const items = [
         {
             id: 1,
@@ -96,7 +97,7 @@ export function StorePage({ userPoints, onPurchase }: StorePageProps) {
                         <div className="text-[10px] md:text-xs font-bold text-blue-200 uppercase tracking-widest mb-1 md:mb-2">Available Balance</div>
                         <div className="text-3xl md:text-5xl font-black text-white flex items-center justify-center md:justify-start gap-2 md:gap-3">
                             <Coins className="size-6 md:size-10 text-amber-400 fill-amber-400/20" />
-                            {userPoints.toLocaleString()}
+                            {isAdmin ? '∞ Unlimited' : userPoints.toLocaleString()}
                         </div>
                     </div>
                 </div>
@@ -141,15 +142,15 @@ export function StorePage({ userPoints, onPurchase }: StorePageProps) {
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => canAfford && onPurchase(item.cost, item.id)}
-                                    disabled={!canAfford}
-                                    className={`w-full xs:w-auto px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${canAfford
+                                    onClick={() => (isAdmin || userPoints >= item.cost) && onPurchase(item.cost, item.id)}
+                                    disabled={!isAdmin && userPoints < item.cost}
+                                    className={`w-full xs:w-auto px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${isAdmin || userPoints >= item.cost
                                             ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20 hover:scale-105 active:scale-95'
                                             : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed'
                                         }`}
                                 >
-                                    {canAfford ? 'Redeem' : 'Locked'}
-                                    {canAfford && <ArrowUpRight className="size-4" />}
+                                    {isAdmin || userPoints >= item.cost ? 'Redeem' : 'Locked'}
+                                    {(isAdmin || userPoints >= item.cost) && <ArrowUpRight className="size-4" />}
                                 </button>
                             </div>
                         </div>
@@ -173,9 +174,9 @@ export function StorePage({ userPoints, onPurchase }: StorePageProps) {
                             Unlock 10,000 points and a unique VIP badge instantly. Save 25% for the next 2 hours.
                         </p>
                         <button
-                            onClick={() => userPoints >= 7500 && onPurchase(7500, 7)}
-                            disabled={userPoints < 7500}
-                            className={`w-full sm:w-auto bg-white px-8 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[2rem] font-black text-lg md:text-xl transition-all shadow-2xl flex items-center justify-center gap-3 mx-auto md:mx-0 ${userPoints >= 7500
+                            onClick={() => (isAdmin || userPoints >= 7500) && onPurchase(7500, 7)}
+                            disabled={!isAdmin && userPoints < 7500}
+                            className={`w-full sm:w-auto bg-white px-8 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[2rem] font-black text-lg md:text-xl transition-all shadow-2xl flex items-center justify-center gap-3 mx-auto md:mx-0 ${isAdmin || userPoints >= 7500
                                     ? 'text-orange-600 hover:bg-orange-50 hover:scale-105 active:scale-95'
                                     : 'bg-white/30 text-white/50 cursor-not-allowed'
                                 }`}
