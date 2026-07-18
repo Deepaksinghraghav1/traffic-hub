@@ -41,8 +41,8 @@ export function SignInPage({ onSignIn, onSignUpClick, onBack, theme, setTheme }:
                 <div className="absolute top-1/4 left-1/4 size-96 bg-blue-600/10 rounded-full blur-[128px]"></div>
 
                 <div className="relative z-10 max-w-md p-12">
-                    <div className="size-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-2xl mb-10">
-                        <Zap className="size-10 text-white" />
+                    <div className="mb-10">
+                        <PlatformBranding />
                     </div>
                     <h2 className="text-5xl font-black text-white mb-6 leading-tight tracking-tighter">
                         Amplify your digital presence.

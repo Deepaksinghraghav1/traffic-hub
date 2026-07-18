@@ -694,12 +694,7 @@ export default function App() {
             {/* Sidebar (Desktop) */}
             <aside className="hidden md:flex w-64 bg-white dark:bg-black border-r border-zinc-200 dark:border-white/10 flex-col relative z-20">
                 <div className="p-6 border-b border-zinc-200 dark:border-zinc-800">
-                    <div className="flex items-center gap-2 sm:gap-3 group cursor-pointer" onClick={() => setCurrentPage('landing')}>
-                        <div className="size-8 sm:size-9 bg-zinc-900 dark:bg-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/10 group-hover:scale-105 transition-transform">
-                            <Zap className="size-4 sm:size-5 text-white" />
-                        </div>
-                        <span className="font-extrabold text-xl sm:text-xl tracking-tighter text-zinc-900 dark:text-white hidden sm:block">NexusFlow</span>
-                    </div>
+                    <PlatformBranding onClick={() => setCurrentPage('landing')} />
                 </div>
 
                 <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
