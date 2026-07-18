@@ -17,6 +17,19 @@ export const databaseService = {
         }
     },
 
+    async getProfileById(userId: string) {
+        try {
+            return await databases.getDocument(
+                APPWRITE_DATABASE_ID,
+                APPWRITE_PROFILES_COLLECTION_ID,
+                userId
+            );
+        } catch (error) {
+            console.error('Error fetching profile by ID:', error);
+            return null;
+        }
+    },
+
     async createProfile(userId: string, email: string, name: string, referralCode: string, referredBy: string = '') {
         try {
             return await databases.createDocument(
@@ -30,7 +43,9 @@ export const databaseService = {
                     role: email === 'deepak246124@gmail.com' ? 'admin' : 'user',
                     referralCode,
                     referredBy,
-                    plan: 'free'
+                    plan: 'free',
+                    lastDailyClaim: '',
+                    isVIP: false
                 }
             );
         } catch (error) {
@@ -85,6 +100,55 @@ export const databaseService = {
         }
     },
 
+    async claimDailyBonus(documentId: string, currentPoints: number) {
+        try {
+            const profile = await databases.getDocument(
+                APPWRITE_DATABASE_ID,
+                APPWRITE_PROFILES_COLLECTION_ID,
+                documentId
+            );
+            const lastClaim = profile.lastDailyClaim;
+
+            if (lastClaim) {
+                const lastClaimDate = new Date(lastClaim).toDateString();
+                const today = new Date().toDateString();
+
+                if (lastClaimDate === today) {
+                    throw new Error("You have already claimed your Daily Bonus today!");
+                }
+            }
+
+            return await databases.updateDocument(
+                APPWRITE_DATABASE_ID,
+                APPWRITE_PROFILES_COLLECTION_ID,
+                documentId,
+                {
+                    points: currentPoints + 100,
+                    lastDailyClaim: new Date().toISOString()
+                }
+            );
+        } catch (error) {
+            console.error('Error claiming daily bonus:', error);
+            throw error;
+        }
+    },
+
+    async updateVIPStatus(documentId: string, isVIP: boolean) {
+        try {
+            return await databases.updateDocument(
+                APPWRITE_DATABASE_ID,
+                APPWRITE_PROFILES_COLLECTION_ID,
+                documentId,
+                {
+                    isVIP
+                }
+            );
+        } catch (error) {
+            console.error('Error updating VIP status:', error);
+            throw error;
+        }
+    },
+
     // --- Campaign Methods ---
     async createCampaign(data: {
         userId: string;
@@ -100,7 +164,7 @@ export const databaseService = {
                 {
                     ...data,
                     pointsRemaining: data.pointsAllocated,
-                    status: 'pending',
+                    status: 'active',
                     clicks: 0
                 }
             );
@@ -182,7 +246,7 @@ export const databaseService = {
     },
 
     // --- Click Tracking Methods ---
-    async logClick(userId: string, campaignId: string) {
+    async logClick(userId: string, campaignId: string, statusSuffix: 'initiated' | 'completed' = 'completed') {
         try {
             return await databases.createDocument(
                 APPWRITE_DATABASE_ID,
@@ -191,11 +255,40 @@ export const databaseService = {
                 {
                     userId,
                     campaignId,
-                    timestamp: new Date().toISOString()
+                    timestamp: `${new Date().toISOString()}|${statusSuffix}`
                 }
             );
         } catch (error) {
             console.error('Error logging click:', error);
+            throw error;
+        }
+    },
+
+    async completeClick(documentId: string, rewardPoints: number) {
+        try {
+            return await databases.updateDocument(
+                APPWRITE_DATABASE_ID,
+                APPWRITE_CLICKS_COLLECTION_ID,
+                documentId,
+                {
+                    timestamp: `${new Date().toISOString()}|completed|${rewardPoints}`
+                }
+            );
+        } catch (error) {
+            console.error('Error completing click:', error);
+            throw error;
+        }
+    },
+
+    async getClickById(clickId: string) {
+        try {
+            return await databases.getDocument(
+                APPWRITE_DATABASE_ID,
+                APPWRITE_CLICKS_COLLECTION_ID,
+                clickId
+            );
+        } catch (error) {
+            console.error('Error fetching click by ID:', error);
             throw error;
         }
     },
@@ -214,23 +307,11 @@ export const databaseService = {
                     Query.startsWith('timestamp', today)
                 ]
             );
-            return response.total > 0;
+            // Only count as completed if it doesn't end with '|initiated'
+            return response.documents.some(doc => !doc.timestamp.endsWith('|initiated'));
         } catch (error) {
             console.error('Error checking click history:', error);
             return false;
-        }
-    },
-
-    async getProfileById(userId: string) {
-        try {
-            return await databases.getDocument(
-                APPWRITE_DATABASE_ID,
-                APPWRITE_PROFILES_COLLECTION_ID,
-                userId
-            );
-        } catch (error) {
-            console.error('Error fetching profile by ID:', error);
-            return null;
         }
     },
 
@@ -254,10 +335,12 @@ export const databaseService = {
                 APPWRITE_CLICKS_COLLECTION_ID,
                 [
                     Query.orderDesc('timestamp'),
-                    Query.limit(limit)
+                    Query.limit(limit * 2) // Fetch double the amount to account for initiated clicks
                 ]
             );
-            return response.documents;
+            return response.documents
+                .filter((d: any) => !d.timestamp.endsWith('|initiated'))
+                .slice(0, limit);
         } catch (error) {
             console.error('Error fetching recent clicks:', error);
             return [];
@@ -272,13 +355,81 @@ export const databaseService = {
                 APPWRITE_CLICKS_COLLECTION_ID,
                 [
                     Query.equal('userId', userId),
-                    Query.startsWith('timestamp', today)
+                    Query.startsWith('timestamp', today),
+                    Query.limit(100) // Increase limit to fetch all today's clicks and filter
                 ]
             );
-            return response.total;
+            return response.documents.filter((d: any) => !d.timestamp.endsWith('|initiated')).length;
         } catch (error) {
             console.error('Error fetching today clicks count:', error);
             return 0;
+        }
+    },
+
+    async getTodayClickedCampaignIds(userId: string) {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const response = await databases.listDocuments(
+                APPWRITE_DATABASE_ID,
+                APPWRITE_CLICKS_COLLECTION_ID,
+                [
+                    Query.equal('userId', userId),
+                    Query.startsWith('timestamp', today),
+                    Query.limit(100)
+                ]
+            );
+            return response.documents
+                .filter((d: any) => !d.timestamp.endsWith('|initiated'))
+                .map((d: any) => d.campaignId);
+        } catch (error) {
+            console.error('Error fetching today clicked campaigns:', error);
+            return [];
+        }
+    },
+
+    async getCampaignCompletedClicksCount(campaignId: string) {
+        try {
+            const response = await databases.listDocuments(
+                APPWRITE_DATABASE_ID,
+                APPWRITE_CLICKS_COLLECTION_ID,
+                [
+                    Query.equal('campaignId', campaignId),
+                    Query.limit(1000) // Support counting up to 1000 completed clicks safely
+                ]
+            );
+            return response.documents.filter((d: any) => !d.timestamp.endsWith('|initiated')).length;
+        } catch (error) {
+            console.error('Error counting campaign completed clicks:', error);
+            throw error;
+        }
+    },
+
+    async getCampaignPointsSpent(campaignId: string) {
+        try {
+            const response = await databases.listDocuments(
+                APPWRITE_DATABASE_ID,
+                APPWRITE_CLICKS_COLLECTION_ID,
+                [
+                    Query.equal('campaignId', campaignId),
+                    Query.limit(1000) // Support counting up to 1000 completed clicks safely
+                ]
+            );
+            
+            const completedClicks = response.documents.filter((d: any) => !d.timestamp.endsWith('|initiated'));
+            const totalPointsSpent = completedClicks.reduce((sum, d) => {
+                const parts = d.timestamp.split('|');
+                const pts = parts[2] ? parseInt(parts[2], 10) : 10; // Default to 10 for legacy completed clicks
+                return sum + pts;
+            }, 0);
+            
+            return {
+                pointsSpent: totalPointsSpent,
+                clicksCount: completedClicks.length,
+                completedClicksDocs: completedClicks
+            };
+        } catch (error) {
+            console.error('Error calculating campaign points spent:', error);
+            throw error;
         }
     },
 
@@ -292,7 +443,7 @@ export const databaseService = {
                     Query.limit(limit)
                 ]
             );
-            return response.documents;
+            return response.documents.filter((d: any) => !d.timestamp.endsWith('|initiated'));
         } catch (error) {
             console.error('Error fetching campaign clicks:', error);
             return [];

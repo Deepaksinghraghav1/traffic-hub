@@ -11,21 +11,32 @@ import { useState, useEffect } from 'react';
 import { databaseService } from '../services/database';
 
 interface EarnPointsViewProps {
+    userId: string;
     onTaskClick: (campaign: any) => void;
 }
 
-export function EarnPointsView({ onTaskClick }: EarnPointsViewProps) {
+export function EarnPointsView({ userId, onTaskClick }: EarnPointsViewProps) {
     const [activeCampaigns, setActiveCampaigns] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchActiveCampaigns();
-    }, []);
+        if (userId) {
+            fetchActiveCampaigns();
+        }
+    }, [userId]);
 
     const fetchActiveCampaigns = async () => {
         try {
-            const all = await databaseService.getAllCampaigns();
-            const active = all.filter((c: any) => c.status === 'active' && c.pointsRemaining > 0);
+            const [all, clickedIds] = await Promise.all([
+                databaseService.getAllCampaigns(),
+                userId ? databaseService.getTodayClickedCampaignIds(userId) : Promise.resolve([])
+            ]);
+            
+            const active = all.filter((c: any) => 
+                c.status === 'active' && 
+                c.pointsRemaining > 0 &&
+                !clickedIds.includes(c.$id)
+            );
             setActiveCampaigns(active);
         } catch (err) {
             console.error(err);

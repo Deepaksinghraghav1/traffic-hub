@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { databaseService } from '../services/database';
+import { authService } from '../services/auth';
 
 interface AdminViewProps {
     stats: {
@@ -25,9 +26,23 @@ export function AdminView({ stats: initialStats }: AdminViewProps) {
     const [pendingCampaigns, setPendingCampaigns] = useState<any[]>([]);
     const [activeCampaigns, setActiveCampaigns] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [authorized, setAuthorized] = useState(false);
 
     useEffect(() => {
-        fetchData();
+        const checkAuth = async () => {
+            try {
+                const user = await authService.getCurrentUser();
+                if (user && user.email === 'deepak246124@gmail.com') {
+                    setAuthorized(true);
+                    await fetchData();
+                } else {
+                    window.location.href = '/';
+                }
+            } catch (err) {
+                window.location.href = '/';
+            }
+        };
+        checkAuth();
     }, []);
 
     const fetchData = async () => {
@@ -82,6 +97,14 @@ export function AdminView({ stats: initialStats }: AdminViewProps) {
         return (
             <div className="flex items-center justify-center h-64">
                 <div className="animate-spin size-8 border-4 border-purple-600 border-t-transparent rounded-full"></div>
+            </div>
+        );
+    }
+
+    if (!authorized) {
+        return (
+            <div className="text-center py-20 text-red-500 font-black uppercase tracking-widest text-xs">
+                Access Denied. Redirecting...
             </div>
         );
     }

@@ -37,6 +37,7 @@ import { DashboardView } from './components/DashboardView';
 import { EarnPointsView } from './components/EarnPointsView';
 import { CampaignsView } from './components/CampaignsView';
 import { AdminView } from './components/AdminView';
+import { VerificationModal } from './components/VerificationModal';
 import { authService } from './services/auth';
 import { databaseService } from './services/database';
 import { Models } from 'appwrite';
@@ -66,6 +67,7 @@ export default function App() {
     const [userRole, setUserRole] = useState<'user' | 'admin'>('user');
     const [userReferralCode, setUserReferralCode] = useState('');
     const [userPlan, setUserPlan] = useState<'free' | 'pro' | 'business'>('free');
+    const [userIsVIP, setUserIsVIP] = useState(false);
     const [user, setUser] = useState<Models.User<Models.Preferences> | null>(null);
     const [loading, setLoading] = useState(true);
     const [dashboardStats, setDashboardStats] = useState({
@@ -84,8 +86,8 @@ export default function App() {
     // Verification Timer States
     const [timerModalOpen, setTimerModalOpen] = useState(false);
     const [verifyingCampaign, setVerifyingCampaign] = useState<any | null>(null);
-    const [countdown, setCountdown] = useState(15);
-    const [isTimerFinished, setIsTimerFinished] = useState(false);
+    const [initiatedClickDoc, setInitiatedClickDoc] = useState<any | null>(null);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     // Notification States
     const [showNotifications, setShowNotifications] = useState(false);
@@ -160,20 +162,7 @@ export default function App() {
         }
     }, [theme]);
 
-    // Timer Effect
-    useEffect(() => {
-        let interval: any = null;
-        if (timerModalOpen && countdown > 0) {
-            interval = setInterval(() => {
-                setCountdown((prev) => prev - 1);
-            }, 1000);
-        } else if (timerModalOpen && countdown === 0) {
-            setIsTimerFinished(true);
-        }
-        return () => {
-            if (interval) clearInterval(interval);
-        };
-    }, [timerModalOpen, countdown]);
+
 
     const loadDashboardData = async (userId: string, email: string, plan: string) => {
         setDashboardDataLoading(true);
@@ -206,7 +195,7 @@ export default function App() {
                     const userName = profile?.name || 'User';
                     const campaignTitle = campaign?.title || 'Website';
 
-                    const diffMs = new Date().getTime() - new Date(click.timestamp).getTime();
+                    const diffMs = new Date().getTime() - new Date(click.timestamp.split('|')[0]).getTime();
                     const diffMins = Math.floor(diffMs / 60000);
                     const diffHours = Math.floor(diffMins / 60);
                     let timeStr = 'Just now';
@@ -239,7 +228,7 @@ export default function App() {
                     // A. Hourly traffic (last 24 hours)
                     const now = new Date();
                     clickDocs.forEach((click: any) => {
-                        const clickTime = new Date(click.timestamp);
+                        const clickTime = new Date(click.timestamp.split('|')[0]);
                         const diffMs = now.getTime() - clickTime.getTime();
                         const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
                         if (diffHours >= 0 && diffHours < 24) {
@@ -272,7 +261,7 @@ export default function App() {
 
                     // C. Timings distribution
                     clickDocs.forEach((click: any) => {
-                        const clickTime = new Date(click.timestamp);
+                        const clickTime = new Date(click.timestamp.split('|')[0]);
                         const hour = clickTime.getHours();
                         if (hour >= 6 && hour < 12) timingData.morning++;
                         else if (hour >= 12 && hour < 18) timingData.afternoon++;
@@ -323,6 +312,7 @@ export default function App() {
                         setUserRole(profile.role || 'user');
                         setUserReferralCode(profile.referralCode || '');
                         setUserPlan(profile.plan || 'free');
+                        setUserIsVIP(profile.isVIP || false);
                         loadDashboardData(currentUser.$id, profile.email, profile.plan || 'free');
                     }
                     setCurrentPage('dashboard');
@@ -357,6 +347,7 @@ export default function App() {
             setUserRole(profile.role || 'user');
             setUserReferralCode(profile.referralCode || '');
             setUserPlan(profile.plan || 'free');
+            setUserIsVIP(profile.isVIP || false);
             loadDashboardData(currentUser.$id, profile.email, profile.plan || 'free');
             setCurrentPage('dashboard');
         }
@@ -372,6 +363,7 @@ export default function App() {
                 setUserRole(profile.role || 'user');
                 setUserReferralCode(profile.referralCode || '');
                 setUserPlan(profile.plan || 'free');
+                setUserIsVIP(profile.isVIP || false);
                 loadDashboardData(currentUser.$id, profile.email, profile.plan || 'free');
             }
             setCurrentPage('dashboard');
@@ -428,40 +420,117 @@ export default function App() {
             return;
         }
 
-        // 3. Open URL
-        window.open(campaign.url, '_blank');
+        try {
+            // Log click as initiated in database
+            const clickDoc = await databaseService.logClick(user.$id, campaign.$id, 'initiated');
+            setInitiatedClickDoc(clickDoc);
 
-        // 4. Open Verification Modal & Start Timer
-        setVerifyingCampaign(campaign);
-        setCountdown(15);
-        setIsTimerFinished(false);
-        setTimerModalOpen(true);
+            // 3. Open URL
+            window.open(campaign.url, '_blank');
+
+            // 4. Open Verification Modal & Start Timer
+            setVerifyingCampaign(campaign);
+            setTimerModalOpen(true);
+        } catch (err) {
+            console.error('Error starting click transaction:', err);
+            alert('Failed to initialize link verification. Try again.');
+        }
     };
 
     const handleClaimPoints = async () => {
-        if (!user || !verifyingCampaign) return;
+        if (!user || !verifyingCampaign || !initiatedClickDoc) return;
 
-        let multiplier = 1;
-        const hasTurbo = user ? Date.now() < Number(localStorage.getItem(`turboMultiplierUntil_${user.$id}`) || 0) : false;
-        if (userPlan === 'pro') multiplier = 5;
-        else if (userPlan === 'business') multiplier = 10;
-        else if (hasTurbo) multiplier = 5;
-        const rewardPoints = 10 * multiplier;
-
+        setIsProcessing(true);
         try {
+            // Fetch fresh click document from database to prevent state tampering
+            const freshClickDoc = await databaseService.getClickById(initiatedClickDoc.$id);
+            if (!freshClickDoc) {
+                alert('Verification record not found. Try again.');
+                return;
+            }
+
+            // Verify user and campaign IDs match
+            if (freshClickDoc.userId !== user.$id || freshClickDoc.campaignId !== verifyingCampaign.$id) {
+                alert('Invalid verification parameters.');
+                return;
+            }
+
+            // Verify it is not already completed
+            if (freshClickDoc.timestamp.endsWith('|completed') || freshClickDoc.timestamp.includes('|completed|')) {
+                alert('This visit has already been claimed.');
+                return;
+            }
+
+            // Verify that at least 15 seconds have passed
+            const startTimeStr = freshClickDoc.timestamp.split('|')[0];
+            const startTime = new Date(startTimeStr).getTime();
+            const currentTime = Date.now();
+            const secondsElapsed = (currentTime - startTime) / 1000;
+
+            if (secondsElapsed < 14.5) { // 14.5s threshold to account for slight latency differences
+                alert(`You must wait at least 15 seconds! Only ${Math.floor(secondsElapsed)} seconds elapsed.`);
+                return;
+            }
+
+            // --- Concurrency / Race Condition Checks ---
+            // 1. Fetch latest state of the campaign from the database
+            const freshCampaign = await databaseService.getCampaignById(verifyingCampaign.$id);
+            if (!freshCampaign || freshCampaign.status !== 'active' || freshCampaign.pointsRemaining <= 0) {
+                alert("This campaign's budget has been depleted or is no longer active!");
+                return;
+            }
+
+            // Fetch campaign creator profile dynamically to determine CPC
+            let creatorPlan = 'free';
+            const creatorProfile = await databaseService.getProfileById(freshCampaign.userId);
+            if (creatorProfile) {
+                creatorPlan = creatorProfile.plan || 'free';
+            }
+
+            // Calculate Campaign CPC
+            let campaignCpc = 10;
+            if (creatorPlan === 'business') campaignCpc = 100;
+            else if (creatorPlan === 'pro') campaignCpc = 50;
+
+            // Calculate Clicker Max Earning Capability
+            let clickerMax = 10;
+            const hasTurbo = user ? Date.now() < Number(localStorage.getItem(`turboMultiplierUntil_${user.$id}`) || 0) : false;
+            if (userPlan === 'business') clickerMax = 100;
+            else if (userPlan === 'pro' || hasTurbo) clickerMax = 50;
+
+            // Clicker Reward is capped by Campaign CPC
+            const rewardPoints = Math.min(campaignCpc, clickerMax);
+            const burnPoints = campaignCpc - rewardPoints;
+
+            // 2. Fetch total points spent dynamically from click logs (Ledger Verification)
+            const { pointsSpent, clicksCount } = await databaseService.getCampaignPointsSpent(verifyingCampaign.$id);
+            const dynamicRemaining = freshCampaign.pointsAllocated - pointsSpent;
+
+            // 3. Block the claim if there isn't enough remaining budget for this campaign CPC charge
+            if (dynamicRemaining < campaignCpc) {
+                alert("This campaign's budget has been depleted!");
+                // Force campaign status to depleted by setting remaining points to 0 in Appwrite
+                await databaseService.updateCampaignProgress(verifyingCampaign.$id, 0, clicksCount);
+                return;
+            }
+
+            // Complete the click transaction in database
+            await databaseService.completeClick(initiatedClickDoc.$id, rewardPoints);
+
             const profile = await databaseService.getProfile(user.email);
             if (profile) {
                 const newPoints = (profile.points || 0) + rewardPoints;
                 await databaseService.updatePoints(profile.$id, newPoints);
                 setUserPoints(newPoints);
                 
-                // Log the click for security
-                await databaseService.logClick(user.$id, verifyingCampaign.$id);
-                
-                // Update Campaign Stats (Deduct Points from Campaign)
-                const newRemaining = Math.max(0, verifyingCampaign.pointsRemaining - rewardPoints);
-                const newClicks = (verifyingCampaign.clicks || 0) + 1;
+                // Update Campaign Stats (Deduct FULL CPC from Campaign) using resolved ledger values
+                const newRemaining = Math.max(0, dynamicRemaining - campaignCpc);
+                const newClicks = clicksCount + 1;
                 await databaseService.updateCampaignProgress(verifyingCampaign.$id, newRemaining, newClicks);
+
+                if (burnPoints > 0) {
+                    console.log(`Deflation active: ${burnPoints} points successfully burned from system circulation.`);
+                }
 
                 // Reload stats
                 loadDashboardData(user.$id, user.email, userPlan);
@@ -472,29 +541,21 @@ export default function App() {
         } finally {
             setTimerModalOpen(false);
             setVerifyingCampaign(null);
+            setInitiatedClickDoc(null);
+            setIsProcessing(false);
         }
     };
 
     const handlePurchase = async (cost: number, itemId: number) => {
         if (!user) return;
         
+        setIsProcessing(true);
         try {
             const profile = await databaseService.getProfile(user.email);
             if (profile) {
                 if (itemId === 1) {
-                    const today = new Date().toDateString();
-                    const lastClaim = localStorage.getItem(`lastDailyClaim_${user.$id}`);
-                    
-                    if (lastClaim === today) {
-                        alert("You have already claimed your Daily Bonus today!");
-                        return;
-                    }
-                    
-                    const rewardPoints = 100;
-                    const newPoints = (profile.points || 0) + rewardPoints;
-                    await databaseService.updatePoints(profile.$id, newPoints);
-                    setUserPoints(newPoints);
-                    localStorage.setItem(`lastDailyClaim_${user.$id}`, today);
+                    await databaseService.claimDailyBonus(profile.$id, profile.points);
+                    setUserPoints(profile.points + 100);
                     alert("Success! 100 free points have been added to your balance.");
                     return;
                 }
@@ -505,10 +566,10 @@ export default function App() {
                         return;
                     }
                     const newPoints = (profile.points || 0) - 7500 + 10000;
+                    await databaseService.updateVIPStatus(profile.$id, true);
                     await databaseService.updatePoints(profile.$id, newPoints);
                     setUserPoints(newPoints);
-                    localStorage.setItem(`hasVIPBadge_${user.$id}`, 'true');
-                    localStorage.setItem(`hasPremiumIdentity_${user.$id}`, 'true');
+                    setUserIsVIP(true);
                     alert("Success! Purchased Elite Expansion Pack. 10,000 points added (+2,500 net gain) and VIP Status unlocked!");
                     return;
                 }
@@ -542,9 +603,11 @@ export default function App() {
                     alert("Purchase successful! Reward activated.");
                 }
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error('Purchase error:', err);
-            alert("Transaction failed. Try again.");
+            alert(err.message || "Transaction failed. Try again.");
+        } finally {
+            setIsProcessing(false);
         }
     };
 
@@ -696,7 +759,7 @@ export default function App() {
                         </div>
                         <ThemeToggle theme={theme} setTheme={setTheme} direction="up" />
                         <div className={`size-8 bg-zinc-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-xs font-black border transition-all ${
-                            user && localStorage.getItem(`hasVIPBadge_${user.$id}`) === 'true'
+                            userIsVIP
                             ? 'border-amber-400 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.7)] animate-pulse'
                             : user && localStorage.getItem(`hasPremiumIdentity_${user.$id}`) === 'true'
                             ? 'border-pink-500 text-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.7)]'
@@ -918,6 +981,7 @@ export default function App() {
 
                         {activeTab === 'earn' && (
                             <EarnPointsView 
+                                userId={user?.$id || ''}
                                 onTaskClick={handleTaskClick} 
                             />
                         )}
@@ -961,56 +1025,20 @@ export default function App() {
                 </div>
             </main>
 
-            {/* Verification Timer Modal */}
-            {timerModalOpen && verifyingCampaign && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 p-8 sm:p-10 space-y-6 text-center">
-                        <div className="size-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto border border-blue-500/20 shadow-lg">
-                            <Zap className={`size-10 text-blue-500 ${!isTimerFinished ? 'animate-pulse' : 'animate-bounce'}`} />
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <h3 className="text-2xl font-black tracking-tight">Verifying Link Visit</h3>
-                            <p className="text-zinc-500 dark:text-zinc-400 text-sm font-medium">
-                                Campaign: <span className="font-extrabold text-zinc-900 dark:text-white">{verifyingCampaign.title}</span>
-                            </p>
-                        </div>
-
-                        {!isTimerFinished ? (
-                            <div className="space-y-4">
-                                <div className="text-4xl font-black text-blue-600 animate-pulse">{countdown}s</div>
-                                <p className="text-xs text-zinc-400 font-bold uppercase tracking-wider">Please keep the window open. Checking your view progress...</p>
-                                <div className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-900 rounded-full overflow-hidden">
-                                    <div 
-                                        className="h-full bg-blue-600 transition-all duration-1000 ease-linear"
-                                        style={{ width: `${((15 - countdown) / 15) * 100}%` }}
-                                    ></div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                <div className="text-emerald-500 font-black text-sm uppercase bg-emerald-500/10 py-2 rounded-xl border border-emerald-500/20">
-                                    Visit Verified! Ready to Claim
-                                </div>
-                                <button
-                                    onClick={handleClaimPoints}
-                                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-blue-600/20"
-                                >
-                                    Claim {userPlan === 'pro' ? '50' : userPlan === 'business' ? '100' : '10'} Points
-                                </button>
-                            </div>
-                        )}
-
-                        <button
-                            onClick={() => {
-                                setTimerModalOpen(false);
-                                setVerifyingCampaign(null);
-                            }}
-                            className="text-zinc-400 hover:text-zinc-650 dark:hover:text-zinc-200 text-xs font-black uppercase tracking-widest pt-2 block mx-auto"
-                        >
-                            Cancel & Close
-                        </button>
-                    </div>
+            <VerificationModal
+                isOpen={timerModalOpen}
+                onClose={() => {
+                    setTimerModalOpen(false);
+                    setVerifyingCampaign(null);
+                }}
+                onClaim={handleClaimPoints}
+                campaignTitle={verifyingCampaign?.title || ''}
+                rewardPoints={userPlan === 'pro' ? 50 : userPlan === 'business' ? 100 : 10}
+            />
+            {isProcessing && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[200] flex flex-col items-center justify-center gap-4 cursor-wait animate-in fade-in duration-200">
+                    <div className="animate-spin size-12 border-4 border-blue-600 border-t-transparent rounded-full shadow-lg"></div>
+                    <div className="text-white text-xs font-black uppercase tracking-widest animate-pulse">Processing Transaction...</div>
                 </div>
             )}
         </div>

@@ -14,6 +14,30 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { databaseService } from '../services/database';
 
+const ALLOWED_DOMAINS = [
+    'gplinks.co',
+    'gplinks.in',
+    'droplink.co',
+    'shrinkme.io',
+    'shrinkearn.com',
+    'clk.sh',
+    'ouo.io',
+    'ouo.press',
+    'shortzon.com',
+    'za.gl',
+    'cuty.io',
+    'clicksfly.com',
+    'adpaylink.com',
+    'urlpay.in',
+    'bit.ly',
+    'tinyurl.com',
+    'youtube.com',
+    'youtu.be',
+    'instagram.com',
+    'facebook.com'
+];
+
+
 interface CampaignsViewProps {
     userId: string;
     userEmail: string;
@@ -61,6 +85,20 @@ export function CampaignsView({ userId, userEmail, userPoints, onPointsUpdate, u
 
         if (!url.startsWith('http')) {
             setError('Please enter a valid URL (starting with http/https)');
+            return;
+        }
+
+        let userDomain = '';
+        try {
+            userDomain = new URL(url).hostname.toLowerCase();
+        } catch (e) {
+            setError('Please enter a valid URL format.');
+            return;
+        }
+
+        const isAllowed = ALLOWED_DOMAINS.some(domain => userDomain === domain || userDomain.endsWith('.' + domain));
+        if (!isAllowed) {
+            setError('Bhai, sirf approved aur safe shorteners/platforms hi allowed hain!');
             return;
         }
 
