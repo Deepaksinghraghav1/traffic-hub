@@ -41,6 +41,7 @@ import { VerificationModal } from './components/VerificationModal';
 import { authService } from './services/auth';
 import { databaseService } from './services/database';
 import { Models } from 'appwrite';
+import { PlatformBranding } from './components/PlatformBranding';
 
 type Page = 'landing' | 'howItWorks' | 'pricing' | 'dashboard' | 'signIn' | 'signUp' | 'features' | 'about' | 'blog' | 'contact' | 'privacy' | 'terms' | 'support';
 type DashboardTab = 'dashboard' | 'earn' | 'campaigns' | 'store' | 'settings' | 'admin';

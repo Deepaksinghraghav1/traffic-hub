@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Zap, Mail, Lock, ArrowRight, Github, Eye, EyeOff } from 'lucide-react';
 import { ThemeToggle, ThemeMode } from './ThemeToggle';
 import { authService } from '../services/auth';
+import { PlatformBranding } from './PlatformBranding';
 
 interface SignInPageProps {
     onSignIn: () => void;
