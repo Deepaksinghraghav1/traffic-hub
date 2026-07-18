@@ -947,14 +947,18 @@ export default function App() {
                             <div className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl md:rounded-2xl p-1 md:p-1.5 pl-3 md:pl-4 flex items-center gap-2 md:gap-4 group">
                                 <div className="hidden sm:block text-right">
                                     <div className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-tighter">Balance</div>
-                                    <div className="text-sm md:text-lg font-black leading-none">{userPoints.toLocaleString()}</div>
+                                    <div className="text-sm md:text-lg font-black leading-none">
+                                        {userRole === 'admin' ? '∞ Unlimited' : userPoints.toLocaleString()}
+                                    </div>
                                 </div>
                                 <div className="size-8 md:size-11 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg md:rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:rotate-12 transition-transform">
                                     <Coins className="size-4 md:size-6 text-white fill-white/20" />
                                 </div>
                                 {/* Mobile-only balance number */}
                                 <div className="sm:hidden pr-2">
-                                    <div className="text-xs font-black leading-none">{userPoints.toLocaleString()}</div>
+                                    <div className="text-xs font-black leading-none">
+                                        {userRole === 'admin' ? '∞ Unlimited' : userPoints.toLocaleString()}
+                                    </div>
                                 </div>
                             </div>
                         </div>
