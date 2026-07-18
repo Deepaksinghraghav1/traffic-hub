@@ -20,7 +20,7 @@ export function BlogPage({ onBack, onGetStarted, theme, setTheme }: BlogPageProp
         },
         {
             title: "Why Community-Driven Traffic Beats Paid Ads",
-            excerpt: "An in-depth look at how peer-to-peer traffic exchange platforms like TrafficHub yield higher engagement rates than traditional CPC ads.",
+            excerpt: "An in-depth look at how peer-to-peer traffic exchange platforms like NexusFlow yield higher engagement rates than traditional CPC ads.",
             date: "April 28, 2026",
             readTime: "7 min read",
             category: "Marketing",
@@ -53,7 +53,7 @@ export function BlogPage({ onBack, onGetStarted, theme, setTheme }: BlogPageProp
                         <div className="size-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
                             <Zap className="size-6 text-white" />
                         </div>
-                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">TrafficHub</span>
+                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">NexusFlow</span>
                     </button>
                     <div className="flex items-center gap-4">
                         <ThemeToggle theme={theme} setTheme={setTheme} />
@@ -71,11 +71,11 @@ export function BlogPage({ onBack, onGetStarted, theme, setTheme }: BlogPageProp
             <div className="max-w-7xl mx-auto px-6 pt-20 pb-16 text-center">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full mb-6">
                     <BookOpen className="size-4 text-blue-600 dark:text-blue-400" />
-                    <span className="text-[10px] font-black text-blue-700 dark:text-blue-300 uppercase tracking-widest">TrafficHub Insights</span>
+                    <span className="text-[10px] font-black text-blue-700 dark:text-blue-300 uppercase tracking-widest">NexusFlow Insights</span>
                 </div>
                 <h1 className="text-4xl sm:text-6xl font-black mb-6 tracking-tight leading-[1.1]">Learn how to grow<br className="hidden sm:block" /> your audience</h1>
                 <p className="text-xl text-zinc-500 dark:text-zinc-400 max-w-2xl mx-auto font-medium">
-                    Expert tips, growth hacks, and platform updates from the TrafficHub team.
+                    Expert tips, growth hacks, and platform updates from the NexusFlow team.
                 </p>
             </div>
 

@@ -94,7 +94,7 @@ export default function App() {
     const [notifications, setNotifications] = useState([
         {
             id: 1,
-            title: 'Welcome to TrafficHub!',
+            title: 'Welcome to NexusFlow!',
             message: 'Start earning points by visiting other user campaigns.',
             time: 'Just now',
             read: false,
@@ -698,7 +698,7 @@ export default function App() {
                         <div className="size-8 sm:size-9 bg-zinc-900 dark:bg-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/10 group-hover:scale-105 transition-transform">
                             <Zap className="size-4 sm:size-5 text-white" />
                         </div>
-                        <span className="font-extrabold text-xl sm:text-xl tracking-tighter text-zinc-900 dark:text-white hidden sm:block">TrafficHub</span>
+                        <span className="font-extrabold text-xl sm:text-xl tracking-tighter text-zinc-900 dark:text-white hidden sm:block">NexusFlow</span>
                     </div>
                 </div>
 

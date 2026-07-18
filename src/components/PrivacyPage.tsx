@@ -18,7 +18,7 @@ export function PrivacyPage({ onBack, onGetStarted, theme, setTheme }: PrivacyPa
                         <div className="size-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
                             <Zap className="size-6 text-white" />
                         </div>
-                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">TrafficHub</span>
+                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">NexusFlow</span>
                     </button>
                     <div className="flex items-center gap-4">
                         <ThemeToggle theme={theme} setTheme={setTheme} />
@@ -42,7 +42,7 @@ export function PrivacyPage({ onBack, onGetStarted, theme, setTheme }: PrivacyPa
                     <section>
                         <h2 className="text-3xl font-black mb-6 tracking-tight">1. Introduction</h2>
                         <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium text-lg">
-                            Welcome to TrafficHub. We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you about how we look after your personal data when you visit our website and tell you about your privacy rights and how the law protects you.
+                            Welcome to NexusFlow. We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you about how we look after your personal data when you visit our website and tell you about your privacy rights and how the law protects you.
                         </p>
                     </section>
 

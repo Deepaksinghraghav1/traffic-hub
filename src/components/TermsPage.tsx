@@ -18,7 +18,7 @@ export function TermsPage({ onBack, onGetStarted, theme, setTheme }: TermsPagePr
                         <div className="size-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
                             <Zap className="size-6 text-white" />
                         </div>
-                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">TrafficHub</span>
+                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">NexusFlow</span>
                     </button>
                     <div className="flex items-center gap-4">
                         <ThemeToggle theme={theme} setTheme={setTheme} />
@@ -42,14 +42,14 @@ export function TermsPage({ onBack, onGetStarted, theme, setTheme }: TermsPagePr
                     <section>
                         <h2 className="text-3xl font-black mb-6 tracking-tight">1. Agreement to Terms</h2>
                         <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium text-lg">
-                            By accessing or using TrafficHub, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
+                            By accessing or using NexusFlow, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-3xl font-black mb-6 tracking-tight">2. Use License</h2>
                         <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed mb-8 font-medium text-lg">
-                            Permission is granted to temporarily use TrafficHub for personal or commercial purposes, subject to the following restrictions:
+                            Permission is granted to temporarily use NexusFlow for personal or commercial purposes, subject to the following restrictions:
                         </p>
                         <div className="grid grid-cols-1 gap-4">
                             {[
@@ -65,21 +65,21 @@ export function TermsPage({ onBack, onGetStarted, theme, setTheme }: TermsPagePr
                             ))}
                         </div>
                         <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed mt-8 font-medium italic text-sm">
-                            This license shall automatically terminate if you violate any of these restrictions and may be terminated by TrafficHub at any time.
+                            This license shall automatically terminate if you violate any of these restrictions and may be terminated by NexusFlow at any time.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-3xl font-black mb-6 tracking-tight">3. Disclaimer</h2>
                         <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium text-lg">
-                            The materials on TrafficHub are provided on an 'as is' basis. TrafficHub makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property.
+                            The materials on NexusFlow are provided on an 'as is' basis. NexusFlow makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-3xl font-black mb-6 tracking-tight">4. Limitations</h2>
                         <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium text-lg">
-                            In no event shall TrafficHub or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on TrafficHub.
+                            In no event shall NexusFlow or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on NexusFlow.
                         </p>
                     </section>
 

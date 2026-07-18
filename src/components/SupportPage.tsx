@@ -20,7 +20,7 @@ export function SupportPage({ onBack, onGetStarted, theme, setTheme }: SupportPa
         },
         {
             question: "Is the traffic real?",
-            answer: "Absolutely. TrafficHub operates on a community-exchange model. Every click and visit comes from another real user on the platform who is earning points by viewing your content."
+            answer: "Absolutely. NexusFlow operates on a community-exchange model. Every click and visit comes from another real user on the platform who is earning points by viewing your content."
         },
         {
             question: "Why was my campaign rejected?",
@@ -41,7 +41,7 @@ export function SupportPage({ onBack, onGetStarted, theme, setTheme }: SupportPa
                         <div className="size-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
                             <Zap className="size-6 text-white" />
                         </div>
-                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">TrafficHub</span>
+                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">NexusFlow</span>
                     </button>
                     <div className="flex items-center gap-4">
                         <ThemeToggle theme={theme} setTheme={setTheme} />

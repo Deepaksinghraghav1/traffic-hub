@@ -83,7 +83,7 @@ export function HowItWorksPage({ onGetStarted, onBack, theme, setTheme }: HowItW
                         <div className="size-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
                             <Zap className="size-6 text-white" />
                         </div>
-                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">TrafficHub</span>
+                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">NexusFlow</span>
                     </button>
                     <div className="flex items-center gap-4">
                         <ThemeToggle theme={theme} setTheme={setTheme} />
@@ -103,7 +103,7 @@ export function HowItWorksPage({ onGetStarted, onBack, theme, setTheme }: HowItW
                     <Shield className="size-4 text-blue-600 dark:text-blue-400" />
                     <span className="text-[10px] font-black text-blue-700 dark:text-blue-300 uppercase tracking-widest">Safe & Transparent</span>
                 </div>
-                <h1 className="text-4xl sm:text-6xl font-black mb-6 tracking-tight">How TrafficHub Works</h1>
+                <h1 className="text-4xl sm:text-6xl font-black mb-6 tracking-tight">How NexusFlow Works</h1>
                 <p className="text-xl text-zinc-500 dark:text-zinc-400 max-w-2xl mx-auto font-medium">
                     A simple, fair system to grow your online presence through community exchange
                 </p>

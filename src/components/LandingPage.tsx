@@ -283,7 +283,7 @@ export function LandingPage({
                                 Scale your digital footprint.
                             </h2>
                             <p className="text-zinc-500 dark:text-zinc-400 text-base md:text-lg mb-8 md:mb-10 max-w-xl mx-auto font-medium leading-relaxed">
-                                Join 50,000+ creators who are already growing their audience with TrafficHub. Start your journey today.
+                                Join 50,000+ creators who are already growing their audience with NexusFlow. Start your journey today.
                             </p>
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                                 <button
@@ -347,7 +347,7 @@ export function LandingPage({
 
                     <div className="pt-12 border-t border-zinc-200 dark:border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
                         <div className="text-zinc-500 dark:text-zinc-500 font-bold text-sm">
-                            © 2026 TrafficHub Inc. Crafted with passion for creators worldwide.
+                            © 2026 NexusFlow Inc. Crafted with passion for creators worldwide.
                         </div>
                         <div className="flex items-center gap-10">
                             {['Twitter', 'GitHub', 'Discord'].map((social) => (

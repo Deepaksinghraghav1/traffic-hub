@@ -43,7 +43,7 @@ export function FeaturesPage({ onBack, onGetStarted, theme, setTheme }: Features
         {
             icon: Smartphone,
             title: 'Cross-Device Compatibility',
-            description: 'Whether your audience is on a desktop, tablet, or mobile phone, TrafficHub delivers seamless experiences across all platforms.',
+            description: 'Whether your audience is on a desktop, tablet, or mobile phone, NexusFlow delivers seamless experiences across all platforms.',
             color: 'from-rose-500 to-blue-500'
         }
     ];
@@ -57,7 +57,7 @@ export function FeaturesPage({ onBack, onGetStarted, theme, setTheme }: Features
                         <div className="size-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
                             <Zap className="size-6 text-white" />
                         </div>
-                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">TrafficHub</span>
+                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">NexusFlow</span>
                     </button>
                     <div className="flex items-center gap-2 sm:gap-4">
                         <ThemeToggle theme={theme} setTheme={setTheme} />

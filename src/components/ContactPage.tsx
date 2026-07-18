@@ -18,7 +18,7 @@ export function ContactPage({ onBack, onGetStarted, theme, setTheme }: ContactPa
                         <div className="size-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
                             <Zap className="size-6 text-white" />
                         </div>
-                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">TrafficHub</span>
+                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">NexusFlow</span>
                     </button>
                     <div className="flex items-center gap-4">
                         <ThemeToggle theme={theme} setTheme={setTheme} />
@@ -54,7 +54,7 @@ export function ContactPage({ onBack, onGetStarted, theme, setTheme }: ContactPa
                                 <div>
                                     <h3 className="text-2xl font-black mb-2 tracking-tight">Email Support</h3>
                                     <p className="text-zinc-500 dark:text-zinc-400 mb-4 font-medium">Our team usually responds within 24 hours.</p>
-                                    <a href="mailto:support@traffichub.com" className="text-blue-600 dark:text-blue-400 font-bold hover:underline text-lg">support@traffichub.com</a>
+                                    <a href="mailto:support@nexusflow.com" className="text-blue-600 dark:text-blue-400 font-bold hover:underline text-lg">support@nexusflow.com</a>
                                 </div>
                             </div>
 

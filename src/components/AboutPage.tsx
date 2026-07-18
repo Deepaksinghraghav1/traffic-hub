@@ -18,7 +18,7 @@ export function AboutPage({ onBack, onGetStarted, theme, setTheme }: AboutPagePr
                         <div className="size-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
                             <Zap className="size-6 text-white" />
                         </div>
-                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">TrafficHub</span>
+                        <span className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent hidden sm:block">NexusFlow</span>
                     </button>
                     <div className="flex items-center gap-2 sm:gap-4">
                         <ThemeToggle theme={theme} setTheme={setTheme} />
@@ -36,7 +36,7 @@ export function AboutPage({ onBack, onGetStarted, theme, setTheme }: AboutPagePr
             <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-12 md:pt-20 pb-10 md:pb-16 text-center">
                 <h1 className="text-3xl md:text-6xl font-black mb-6 md:mb-8 tracking-tight leading-[1.2] md:leading-[1.1]">Our Mission to Democratize<br className="hidden sm:block" /> Online Traffic</h1>
                 <p className="text-lg md:text-xl text-zinc-500 dark:text-zinc-400 max-w-3xl mx-auto leading-relaxed font-medium">
-                    We believe that growing an online audience shouldn't require a massive marketing budget. TrafficHub was built to create a fair, community-driven ecosystem where creators help creators.
+                    We believe that growing an online audience shouldn't require a massive marketing budget. NexusFlow was built to create a fair, community-driven ecosystem where creators help creators.
                 </p>
             </div>
 

@@ -158,7 +158,7 @@ export function SignInPage({ onSignIn, onSignUpClick, onBack, theme, setTheme }:
 
                     <div className="mt-10 pt-10 border-t border-zinc-100 dark:border-white/5 text-center">
                         <p className="text-zinc-500 dark:text-zinc-400 text-sm font-medium">
-                            New to TrafficHub? <button type="button" onClick={onSignUpClick} className="text-blue-600 dark:text-blue-400 hover:text-blue-500 font-bold transition-colors">Create account</button>
+                            New to NexusFlow? <button type="button" onClick={onSignUpClick} className="text-blue-600 dark:text-blue-400 hover:text-blue-500 font-bold transition-colors">Create account</button>
                         </p>
                     </div>
                 </div>
