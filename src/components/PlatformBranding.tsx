@@ -8,12 +8,9 @@ export const PlatformBranding: React.FC<PlatformBrandingProps> = ({ onClick }) =
     return (
         <div onClick={onClick} className="flex items-center gap-3 group cursor-pointer px-2 py-1 select-none">
             <div className="relative flex items-center justify-center">
-                {/* Ice-Cyan Tech Glow Layer (No Green) */}
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl blur opacity-0 group-hover:opacity-40 transition duration-500"></div>
-
                 {/* Interconnected NF Grid Shield */}
                 <svg
-                    className="w-10 h-10 transform group-hover:rotate-2 transition-transform duration-300 drop-shadow-[0_0_10px_rgba(6,182,212,0.2)]"
+                    className="w-10 h-10 transform transition-transform duration-300"
                     viewBox="0 0 100 100"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -25,13 +22,12 @@ export const PlatformBranding: React.FC<PlatformBrandingProps> = ({ onClick }) =
                         </linearGradient>
                     </defs>
 
-                    {/* Premium Diamond-Cut Outer Border */}
+                    {/* Premium Diamond-Cut Outer Border (Solid opacity, no hover glow change) */}
                     <polygon
                         points="50,5 92,40 76,90 24,90 8,40"
                         stroke="url(#nfIceGrad)"
                         strokeWidth="4.5"
                         strokeLinejoin="round"
-                        className="opacity-80 group-hover:opacity-100 transition-opacity"
                     />
 
                     {/* Interconnected Continuous NF Monogram */}
@@ -45,10 +41,10 @@ export const PlatformBranding: React.FC<PlatformBrandingProps> = ({ onClick }) =
                 </svg>
             </div>
 
-            {/* Corporate Slate & Ice Cyan Typography with theme support */}
-            <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white transition-all duration-300">
+            {/* Corporate Slate & Ice Cyan Typography (Stable, no hover glow changes) */}
+            <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-slate-200 transition-all duration-300">
                 Nexus
-                <span className="ml-0.5 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 font-black group-hover:from-cyan-300 group-hover:to-blue-300 transition-all duration-300">
+                <span className="ml-0.5 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 font-black transition-all duration-300">
                     Flow
                 </span>
             </span>
